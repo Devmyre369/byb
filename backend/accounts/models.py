@@ -1,5 +1,6 @@
 
 import uuid
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
@@ -62,6 +63,8 @@ class User(AbstractUser):
         db_index=True
     )
 
+    # Basic profile information
+
     bio = models.TextField(
         max_length=500,
         blank=True
@@ -72,6 +75,39 @@ class User(AbstractUser):
         null=True
     )
 
+    # Academic information
+
+    college = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    course = models.CharField(
+        max_length=150,
+        blank=True
+    )
+
+    academic_year = models.CharField(
+        max_length=30,
+        blank=True
+    )
+
+    # Location
+
+    city = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    # User interests
+
+    interests = models.JSONField(
+        default=list,
+        blank=True
+    )
+
+    # Account verification
+
     is_verified = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -79,8 +115,24 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
+    @property
+    def is_profile_complete(self):
+        required_fields = [
+            self.first_name,
+            self.username,
+            self.college,
+            self.course,
+            self.academic_year,
+            self.city,
+        ]
+
+        return all(
+            field and field.strip()
+            for field in required_fields
+        )
+
     def __str__(self):
-        return self.email
+        return self.username
 
 
 class EmailOTP(models.Model):

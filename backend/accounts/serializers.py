@@ -116,11 +116,31 @@ class LoginSerializer(serializers.Serializer):
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
 
+    is_profile_complete = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = User
         fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
             "username",
             "bio",
+            "profile_picture",
+            "college",
+            "course",
+            "academic_year",
+            "city",
+            "interests",
+            "is_profile_complete",
+        ]
+
+        read_only_fields = [
+            "id",
+            "email",
+            "profile_picture",
+            "is_profile_complete",
         ]
 
     def validate_username(self, value):
@@ -134,6 +154,61 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate_bio(self, value):
-
+    def validate_first_name(self, value):
         return value.strip()
+
+    def validate_last_name(self, value):
+        return value.strip()
+
+    def validate_bio(self, value):
+        return value.strip()
+
+    def validate_college(self, value):
+        return value.strip()
+
+    def validate_course(self, value):
+        return value.strip()
+
+    def validate_academic_year(self, value):
+        return value.strip()
+
+    def validate_city(self, value):
+        return value.strip()
+
+    def validate_interests(self, value):
+
+        if not isinstance(value, list):
+            raise serializers.ValidationError(
+                "Interests must be provided as a list."
+            )
+
+        if len(value) > 20:
+            raise serializers.ValidationError(
+                "You can select a maximum of 20 interests."
+            )
+
+        cleaned_interests = []
+
+        for interest in value:
+
+            if not isinstance(interest, str):
+                raise serializers.ValidationError(
+                    "Every interest must be text."
+                )
+
+            interest = interest.strip()
+
+            if not interest:
+                continue
+
+            if len(interest) > 40:
+                raise serializers.ValidationError(
+                    "Each interest must be 40 characters or fewer."
+                )
+
+            if interest.casefold() not in [
+                item.casefold() for item in cleaned_interests
+            ]:
+                cleaned_interests.append(interest)
+
+        return cleaned_interests
