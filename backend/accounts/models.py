@@ -1,6 +1,6 @@
 
 import uuid
-
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -81,3 +81,25 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class EmailOTP(models.Model):
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="email_otp"
+    )
+
+    otp_hash = models.CharField(max_length=128)
+
+    expires_at = models.DateTimeField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    is_used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"OTP for {self.user.email}"
