@@ -7,7 +7,10 @@ import {
   Navigate,
   Link,
 } from "react-router-dom";
+
 import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage";
+
 import "./App.css";
 
 type Event = {
@@ -276,40 +279,6 @@ function DiscoverPage() {
   );
 }
 
-function AuthPlaceholder({ title }: { title: string }) {
-  return (
-    <div className="app">
-      <header className="topbar">
-        <Link to="/" className="brand">
-          BYB<span className="brand-accent">.</span>
-        </Link>
-
-        <Link to="/" className="nav-link">
-          Back to Discover
-        </Link>
-      </header>
-
-      <main className="auth-placeholder">
-        <span className="event-category">BEYOND YOUR BUBBLE</span>
-
-        <h1>{title}</h1>
-
-        <p>Your BYB account experience is coming together.</p>
-
-        {title === "Welcome back" ? (
-          <p>
-            New to BYB? <Link to="/register">Create an account</Link>
-          </p>
-        ) : (
-          <p>
-            Already have an account? <Link to="/login">Log in</Link>
-          </p>
-        )}
-      </main>
-    </div>
-  );
-}
-
 function App() {
   return (
     <BrowserRouter>
@@ -318,7 +287,7 @@ function App() {
 
         <Route
           path="/login"
-          element={<AuthPlaceholder title="Welcome back" />}
+          element={<LoginPage />}
         />
 
         <Route
@@ -326,7 +295,10 @@ function App() {
           element={<RegisterPage />}
         />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );
