@@ -1,0 +1,618 @@
+
+/* =========================================
+   APP LAYOUT
+========================================= */
+
+.app-layout {
+  min-height: 100vh;
+  background: #101010;
+  color: #f5f5f5;
+}
+
+/* =========================================
+   DESKTOP SIDEBAR
+========================================= */
+
+.app-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 250px;
+  height: 100vh;
+  box-sizing: border-box;
+
+  padding: 24px 16px;
+
+  background: #181818;
+  border-right: 1px solid #303033;
+
+  overflow-y: auto;
+
+  transition: width 0.3s ease, transform 0.3s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 42px;
+  margin-bottom: 38px;
+}
+
+.sidebar-brand,
+.mobile-brand {
+  color: #f5f5f5;
+  text-decoration: none;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+
+.sidebar-brand span,
+.mobile-brand span {
+  color: #e34250;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid #303033;
+  border-radius: 9px;
+
+  background: #202022;
+  color: #f5f5f5;
+
+  font-size: 21px;
+  cursor: pointer;
+
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #303033;
+  border-color: #e34250;
+}
+
+/* Mobile drawer close button */
+
+.mobile-drawer-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid #303033;
+  border-radius: 9px;
+
+  background: #202022;
+  color: #f5f5f5;
+
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mobile-drawer-close:hover {
+  background: #303033;
+  border-color: #e34250;
+}
+
+/* =========================================
+   SIDEBAR NAVIGATION
+========================================= */
+
+.sidebar-section {
+  margin-bottom: 32px;
+}
+
+.sidebar-label {
+  margin: 0 0 13px 12px;
+
+  color: #737373;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.sidebar-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.app-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  min-height: 46px;
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  color: #a5a5a5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-nav-link:hover {
+  background: #202022;
+  color: #f5f5f5;
+}
+
+.app-nav-link.active {
+  background: rgba(227, 66, 80, 0.12);
+  color: #e34250;
+}
+
+.app-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 24px;
+  min-width: 24px;
+
+  font-size: 21px;
+}
+
+.sidebar-link-text {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px 12px 4px;
+
+  border-top: 1px solid #303033;
+}
+
+.sidebar-footer-brand {
+  color: #e34250;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.sidebar-footer p {
+  margin: 5px 0 0;
+  color: #737373;
+  font-size: 11px;
+}
+
+/* =========================================
+   COLLAPSED DESKTOP SIDEBAR
+========================================= */
+
+.sidebar-collapsed .app-sidebar {
+  width: 82px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.sidebar-collapsed .sidebar-header {
+  justify-content: center;
+}
+
+.sidebar-collapsed .sidebar-brand,
+.sidebar-collapsed .sidebar-label,
+.sidebar-collapsed .sidebar-link-text,
+.sidebar-collapsed .sidebar-footer {
+  display: none;
+}
+
+.sidebar-collapsed .sidebar-navigation {
+  align-items: center;
+}
+
+.sidebar-collapsed .app-nav-link {
+  justify-content: center;
+  width: 54px;
+  padding: 0;
+}
+
+.sidebar-collapsed .sidebar-section {
+  margin-bottom: 28px;
+}
+
+.sidebar-collapsed .app-main {
+  margin-left: 82px;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
+.app-main {
+  min-height: 100vh;
+  margin-left: 250px;
+  box-sizing: border-box;
+
+  transition: margin-left 0.3s ease;
+}
+
+.app-content {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28px 32px;
+}
+
+/* =========================================
+   MOBILE TOP BAR
+========================================= */
+
+.mobile-topbar {
+  display: none;
+}
+
+.mobile-menu-toggle {
+  display: none;
+}
+
+/* =========================================
+   MOBILE BACKDROP
+========================================= */
+
+.mobile-sidebar-backdrop {
+  display: none;
+}
+
+/* =========================================
+   MOBILE BOTTOM NAVIGATION
+========================================= */
+
+.mobile-app-navbar {
+  display: none;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .app-sidebar {
+    width: 210px;
+  }
+
+  .app-main {
+    margin-left: 210px;
+  }
+
+  .sidebar-collapsed .app-sidebar {
+    width: 82px;
+  }
+
+  .sidebar-collapsed .app-main {
+    margin-left: 82px;
+  }
+
+  .app-content {
+    padding: 24px;
+  }
+}
+
+/* =========================================
+   MOBILE DRAWER
+========================================= */
+
+@media (max-width: 768px) {
+
+  /* Top Bar */
+
+  .mobile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1300;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 60px;
+    padding: 0 20px;
+    box-sizing: border-box;
+
+    background: #181818;
+    border-bottom: 1px solid #303033;
+  }
+
+  .mobile-brand {
+    font-size: 23px;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid #303033;
+    border-radius: 9px;
+
+    background: #202022;
+    color: #f5f5f5;
+
+    font-size: 25px;
+    cursor: pointer;
+  }
+
+  .mobile-menu-toggle:hover {
+    border-color: #e34250;
+  }
+
+  /* Sidebar Drawer */
+
+  .app-sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    z-index: 1200;
+
+    display: flex;
+    flex-direction: column;
+
+    width: min(280px, 82vw);
+    height: calc(100dvh - 60px);
+
+    padding: 22px 16px;
+    box-sizing: border-box;
+
+    overflow-y: auto;
+
+    transform: translateX(-100%);
+    visibility: hidden;
+
+    background: #181818;
+    border-right: 1px solid #303033;
+
+    box-shadow: none;
+  }
+
+  .mobile-sidebar-open .app-sidebar {
+    width: min(280px, 82vw);
+
+    transform: translateX(0);
+    visibility: visible;
+
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Drawer Header */
+
+  .sidebar-header {
+    justify-content: space-between;
+    margin-bottom: 34px;
+  }
+
+  .sidebar-brand {
+    display: block !important;
+  }
+
+  .sidebar-toggle {
+    display: none;
+  }
+
+  .mobile-drawer-close {
+    display: flex;
+  }
+
+  /* Restore Sidebar Content */
+
+  .sidebar-label {
+    display: block !important;
+  }
+
+  .sidebar-link-text {
+    display: block !important;
+  }
+
+  .sidebar-footer {
+    display: block !important;
+  }
+
+  .sidebar-navigation {
+    align-items: stretch !important;
+  }
+
+  .app-nav-link {
+    justify-content: flex-start !important;
+    width: 100% !important;
+    padding: 0 12px !important;
+  }
+
+  /* Ignore Desktop Collapsed State on Mobile */
+
+  .sidebar-collapsed .app-sidebar {
+    width: min(280px, 82vw);
+    padding: 22px 16px;
+  }
+
+  .sidebar-collapsed .sidebar-header {
+    justify-content: space-between;
+  }
+
+  .sidebar-collapsed .app-main {
+    margin-left: 0;
+  }
+
+  /* Backdrop */
+
+  .mobile-sidebar-backdrop {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+    border: 0;
+
+    background: rgba(0, 0, 0, 0.65);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .mobile-sidebar-open .mobile-sidebar-backdrop {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Main Content Spacing */
+
+  .app-main {
+    width: 100%;
+    margin-left: 0;
+
+    padding-top: 60px;
+    padding-bottom: 78px;
+
+    box-sizing: border-box;
+  }
+
+  .app-content {
+    width: 100%;
+    max-width: 100%;
+
+    min-height: calc(100vh - 138px);
+
+    padding: 20px 20px 24px;
+    box-sizing: border-box;
+  }
+
+  /* Bottom Navigation */
+
+  .mobile-app-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    height: 68px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+
+    background: #181818;
+    border-top: 1px solid #303033;
+  }
+
+  .mobile-app-nav-item {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    height: 100%;
+
+    color: #737373;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .mobile-app-nav-item.active {
+    color: #e34250;
+  }
+
+  .mobile-app-nav-icon {
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .mobile-create-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+
+    margin: 0 5px;
+
+    border-radius: 14px;
+
+    background: #e34250;
+    color: #ffffff;
+    text-decoration: none;
+
+    font-size: 27px;
+  }
+
+  .mobile-create-button.active {
+    background: #f05260;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE SCREENS
+========================================= */
+
+@media (max-width: 380px) {
+  .mobile-app-navbar {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .mobile-app-nav-item {
+    font-size: 9px;
+  }
+
+  .mobile-create-button {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .app-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar,
+  .app-main,
+  .mobile-sidebar-backdrop {
+    transition: none;
+  }
+}
