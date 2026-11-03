@@ -1,18 +1,31 @@
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny
-from .utils import generate_email_otp
-from .serializers import RegisterSerializer
+
 import hashlib
-from django.utils import timezone
+
 from django.db import transaction
+from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+
 from .models import User, EmailOTP
+from .serializers import RegisterSerializer, LoginSerializer
+from .utils import generate_email_otp
+
+
+# -------------------------
+# HEALTH CHECK
+# -------------------------
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def health_check(request):
     return Response({
         "status": "success",
@@ -20,6 +33,10 @@ def health_check(request):
         "application": "Beyond Your Bubble",
     })
 
+
+# -------------------------
+# USER REGISTRATION
+# -------------------------
 
 class RegisterAPIView(CreateAPIView):
     serializer_class = RegisterSerializer
@@ -42,32 +59,35 @@ class RegisterAPIView(CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
+# -------------------------
+# SEND EMAIL OTP
+# -------------------------
+
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def send_otp(request):
 
     email = request.data.get("email", "").strip().lower()
 
     if not email:
-        return Response(
-            {"status": "error", "message": "Email is required."},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    from .models import User
+        return Response({
+            "status": "error",
+            "message": "Email is required."
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response(
-            {"status": "error", "message": "Account not found."},
-            status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({
+            "status": "error",
+            "message": "Account not found."
+        }, status=status.HTTP_404_NOT_FOUND)
 
     if user.is_verified:
-        return Response(
-            {"status": "error", "message": "Email is already verified."},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({
+            "status": "error",
+            "message": "Email is already verified."
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     generate_email_otp(user)
 
@@ -77,7 +97,12 @@ def send_otp(request):
     })
 
 
+# -------------------------
+# VERIFY EMAIL OTP
+# -------------------------
+
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def verify_otp(request):
 
     email = request.data.get("email", "").strip().lower()
@@ -93,7 +118,6 @@ def verify_otp(request):
         with transaction.atomic():
 
             user = User.objects.select_for_update().get(email=email)
-
             otp_record = EmailOTP.objects.select_for_update().get(user=user)
 
             if user.is_verified:
@@ -169,3 +193,95 @@ def verify_otp(request):
             "status": "error",
             "message": "No OTP found. Request a new OTP."
         }, status=status.HTTP_404_NOT_FOUND)
+
+
+# -------------------------
+# USER LOGIN
+# -------------------------
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def login(request):
+
+    serializer = LoginSerializer(
+        data=request.data,
+        context={"request": request}
+    )
+
+    serializer.is_valid(raise_exception=True)
+
+    return Response({
+        "status": "success",
+        "message": "Login successful.",
+        **serializer.validated_data
+    })
+
+
+# -------------------------
+# USER LOGOUT
+# -------------------------
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout(request):
+
+    refresh_token = request.data.get("refresh")
+
+    if not refresh_token:
+        return Response({
+            "status": "error",
+            "message": "Refresh token is required."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        token = RefreshToken(refresh_token)
+
+        if str(token["user_id"]) != str(request.user.id):
+            return Response({
+                "status": "error",
+                "message": "Invalid refresh token."
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        token.blacklist()
+
+        return Response({
+            "status": "success",
+            "message": "Logged out successfully."
+        })
+
+    except TokenError:
+        return Response({
+            "status": "error",
+            "message": "Invalid or expired refresh token."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+# -------------------------
+# CURRENT USER PROFILE
+# -------------------------
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+
+    user = request.user
+
+    return Response({
+        "status": "success",
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "username": user.username,
+            "bio": user.bio,
+            "profile_picture": user.profile_picture,
+            "is_verified": user.is_verified,
+        }
+    })
+
+
+# -------------------------
+# JWT TOKEN REFRESH
+# -------------------------
+
+class BYBTokenRefreshView(TokenRefreshView):
+    permission_classes = [AllowAny]

@@ -1,6 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 User = get_user_model()
 
@@ -55,3 +59,46 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+
+        email = attrs["email"].strip().lower()
+        password = attrs["password"]
+
+        User = get_user_model()
+
+        user = authenticate(
+            request=self.context.get("request"),
+            **{
+                User.USERNAME_FIELD: email,
+                "password": password,
+            }
+        )
+
+        if not user:
+            raise AuthenticationFailed(
+                "Invalid email or password."
+            )
+
+        if not user.is_verified:
+            raise AuthenticationFailed(
+                "Please verify your email before logging in."
+            )
+
+        refresh = RefreshToken.for_user(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": {
+                "id": str(user.id),
+                "email": user.email,
+                "username": user.username,
+            }
+        }
