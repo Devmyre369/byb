@@ -18,6 +18,12 @@ from rest_framework_simplejwt.exceptions import TokenError
 from .models import User, EmailOTP
 from .serializers import RegisterSerializer, LoginSerializer
 from .utils import generate_email_otp
+import logging
+
+from PIL import Image, UnidentifiedImageError
+from cloudinary import uploader
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 # -------------------------
@@ -312,3 +318,104 @@ def current_user(request):
 
 class BYBTokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
+
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def public_user_profile(request, username):
+
+    try:
+        user = User.objects.get(
+            username__iexact=username,
+            is_active=True
+        )
+    except User.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "User profile not found."
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    return Response({
+        "status": "success",
+        "user": {
+            "username": user.username,
+            "bio": user.bio,
+            "profile_picture": user.profile_picture,
+            "is_verified": user.is_verified,
+        }
+    })
+logger = logging.getLogger(__name__)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def upload_profile_picture(request):
+    uploaded_file = request.FILES.get("image")
+
+    if not uploaded_file:
+        return Response(
+            {"error": "Please provide an image file."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Maximum upload size: 5 MB
+    if uploaded_file.size > 5 * 1024 * 1024:
+        return Response(
+            {"error": "Image size must not exceed 5 MB."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Validate actual image content, not just its extension
+    try:
+        image = Image.open(uploaded_file)
+
+        if image.format not in ["JPEG", "PNG", "WEBP"]:
+            return Response(
+                {"error": "Only JPEG, PNG and WebP images are allowed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if image.width * image.height > 20_000_000:
+            return Response(
+                {"error": "Image dimensions are too large."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        image.verify()
+
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
+        return Response(
+            {"error": "Invalid or corrupted image file."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    uploaded_file.seek(0)
+
+    try:
+        result = uploader.upload(
+            uploaded_file,
+            folder="byb/profile_pictures",
+            public_id=f"user_{request.user.id}",
+            overwrite=True,
+            resource_type="image",
+            allowed_formats=["jpg", "jpeg", "png", "webp"],
+        )
+
+        request.user.profile_picture = result["secure_url"]
+        request.user.save(update_fields=["profile_picture"])
+
+        return Response({
+            "status": "success",
+            "message": "Profile picture updated successfully.",
+            "profile_picture": request.user.profile_picture,
+        }, status=status.HTTP_200_OK)
+
+    except Exception:
+        logger.exception("Cloudinary profile-picture upload failed.")
+
+        return Response(
+            {"error": "Image upload failed. Please try again."},
+            status=status.HTTP_502_BAD_GATEWAY,
+        )

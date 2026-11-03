@@ -12,3 +12,6 @@ def health_check(request):
         "message": "BYB backend is running!",
         "application": "Beyond Your Bubble",
     })
+
+
+
