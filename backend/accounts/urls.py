@@ -1,8 +1,8 @@
-
 from django.urls import path
+from .api_views import RegisterAPIView
 
 app_name = "accounts"
 
 urlpatterns = [
-    # Authentication routes will be added here.
+    path("register/", RegisterAPIView.as_view(), name="register"),
 ]
