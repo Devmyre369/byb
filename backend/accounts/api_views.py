@@ -260,11 +260,38 @@ def logout(request):
 # CURRENT USER PROFILE
 # -------------------------
 
-@api_view(["GET"])
+
+@api_view(["GET", "PATCH"])
 @permission_classes([IsAuthenticated])
 def current_user(request):
 
     user = request.user
+
+    if request.method == "PATCH":
+
+        from .serializers import ProfileUpdateSerializer
+
+        serializer = ProfileUpdateSerializer(
+            user,
+            data=request.data,
+            partial=True
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({
+            "status": "success",
+            "message": "Profile updated successfully.",
+            "user": {
+                "id": str(user.id),
+                "email": user.email,
+                "username": user.username,
+                "bio": user.bio,
+                "profile_picture": user.profile_picture,
+                "is_verified": user.is_verified,
+            }
+        })
 
     return Response({
         "status": "success",

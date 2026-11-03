@@ -1,20 +1,23 @@
-from django.contrib.auth import get_user_model
+
+from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
+
 from rest_framework import serializers
-from django.contrib.auth import authenticate, get_user_model
 from rest_framework.exceptions import AuthenticationFailed
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
 User = get_user_model()
 
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        required=True
-    )
+# -------------------------
+# USER REGISTRATION
+# -------------------------
 
+class RegisterSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True, required=True)
     password_confirmation = serializers.CharField(
         write_only=True,
         required=True
@@ -38,6 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value.strip()
 
     def validate(self, attrs):
+
         if attrs["password"] != attrs["password_confirmation"]:
             raise serializers.ValidationError({
                 "password_confirmation": "Passwords do not match."
@@ -48,8 +52,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop("password_confirmation")
 
+        validated_data.pop("password_confirmation")
         password = validated_data.pop("password")
 
         user = User.objects.create_user(
@@ -61,6 +65,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+# -------------------------
+# USER LOGIN
+# -------------------------
+
 class LoginSerializer(serializers.Serializer):
 
     email = serializers.EmailField()
@@ -70,8 +78,6 @@ class LoginSerializer(serializers.Serializer):
 
         email = attrs["email"].strip().lower()
         password = attrs["password"]
-
-        User = get_user_model()
 
         user = authenticate(
             request=self.context.get("request"),
@@ -102,3 +108,32 @@ class LoginSerializer(serializers.Serializer):
                 "username": user.username,
             }
         }
+
+
+# -------------------------
+# PROFILE UPDATE
+# -------------------------
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "bio",
+        ]
+
+    def validate_username(self, value):
+
+        value = value.strip()
+
+        if not value:
+            raise serializers.ValidationError(
+                "Username cannot be empty."
+            )
+
+        return value
+
+    def validate_bio(self, value):
+
+        return value.strip()
