@@ -19,6 +19,16 @@ type LoginResponse = {
   };
 };
 
+type LoginLocationState = {
+  verified?: boolean;
+  email?: string;
+  from?: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
+};
+
 type ApiError = {
   response?: {
     data?: {
@@ -51,13 +61,17 @@ function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const verified = Boolean(
-    (location.state as { verified?: boolean } | null)?.verified
-  );
+  const locationState =
+    (location.state as LoginLocationState | null) || null;
 
-  const verifiedEmail = (
-    location.state as { email?: string } | null
-  )?.email;
+  const verified = Boolean(locationState?.verified);
+  const verifiedEmail = locationState?.email;
+
+  const requestedPage = locationState?.from;
+
+  const redirectPath = requestedPage?.pathname
+    ? `${requestedPage.pathname}${requestedPage.search || ""}${requestedPage.hash || ""}`
+    : "/";
 
   const [email, setEmail] = useState(verifiedEmail || "");
   const [password, setPassword] = useState("");
@@ -87,7 +101,8 @@ function LoginPage() {
       sessionStorage.setItem("byb_refresh_token", refresh);
       sessionStorage.setItem("byb_user", JSON.stringify(user));
 
-      navigate("/", { replace: true });
+      // Return the user to the page they originally requested.
+      navigate(redirectPath, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

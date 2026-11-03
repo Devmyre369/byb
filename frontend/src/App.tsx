@@ -10,6 +10,7 @@ import {
 
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./App.css";
 
@@ -139,7 +140,7 @@ function DiscoverPage() {
 
           <p className="sidebar-heading">YOUR SPACE</p>
 
-          <Link to="/login" className="sidebar-link">
+          <Link to="/profile" className="sidebar-link">
             <span aria-hidden="true">◎</span>
             My Profile
           </Link>
@@ -279,21 +280,36 @@ function DiscoverPage() {
   );
 }
 
+function ProtectedPlaceholder() {
+  return (
+    <div className="auth-placeholder">
+      <div className="auth-card">
+        <h2>Protected page</h2>
+        <p>You are authenticated and can access this page.</p>
+        <Link to="/" className="auth-switch">
+          Back to Discover
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<DiscoverPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-        <Route
-          path="/login"
-          element={<LoginPage />}
-        />
-
-        <Route
-          path="/register"
-          element={<RegisterPage />}
-        />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="/profile"
+            element={<ProtectedPlaceholder />}
+          />
+        </Route>
 
         <Route
           path="*"
