@@ -1,6 +1,4 @@
-from django.db import models
 
-# Create your models here.
 import uuid
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -10,9 +8,11 @@ from django.db import models
 class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
-
         if not email:
             raise ValueError("Email address is required")
+
+        if not extra_fields.get("username"):
+            raise ValueError("Username is required")
 
         email = self.normalize_email(email)
 
@@ -27,7 +27,6 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -47,16 +46,15 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
 
-    username = models.CharField(
-        max_length=30,
-        unique=True,
-        blank=False
-    )
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False
+    )
+
+    username = models.CharField(
+        max_length=30,
+        unique=True
     )
 
     email = models.EmailField(
