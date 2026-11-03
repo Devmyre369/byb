@@ -7,6 +7,7 @@ import {
   Navigate,
   Link,
 } from "react-router-dom";
+import RegisterPage from "./pages/RegisterPage";
 import "./App.css";
 
 type Event = {
@@ -94,7 +95,6 @@ function DiscoverPage() {
 
   return (
     <div className="app">
-      {/* Top navigation */}
       <header className="topbar">
         <Link to="/" className="brand" aria-label="BYB home">
           BYB<span className="brand-accent">.</span>
@@ -118,7 +118,6 @@ function DiscoverPage() {
       </header>
 
       <div className="main-layout">
-        {/* Desktop sidebar */}
         <aside className="sidebar">
           <p className="sidebar-heading">MENU</p>
 
@@ -148,7 +147,6 @@ function DiscoverPage() {
           </Link>
         </aside>
 
-        {/* Main content */}
         <main className="content" id="discover">
           <section className="page-heading">
             <span className="event-category">BEYOND YOUR BUBBLE</span>
@@ -161,7 +159,6 @@ function DiscoverPage() {
             </p>
           </section>
 
-          {/* Search */}
           <section className="search-section">
             <input
               type="search"
@@ -173,7 +170,6 @@ function DiscoverPage() {
             />
           </section>
 
-          {/* Categories */}
           <section className="categories-section">
             <div className="category-list">
               {categories.map((category) => (
@@ -190,7 +186,6 @@ function DiscoverPage() {
             </div>
           </section>
 
-          {/* Events */}
           <section className="events-section" id="events">
             <div className="section-heading">
               <div>
@@ -263,7 +258,6 @@ function DiscoverPage() {
         </main>
       </div>
 
-      {/* Mobile bottom navigation */}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         {navigation.map((item) => (
           <button
@@ -300,9 +294,7 @@ function AuthPlaceholder({ title }: { title: string }) {
 
         <h1>{title}</h1>
 
-        <p>
-          Your BYB account experience is coming together.
-        </p>
+        <p>Your BYB account experience is coming together.</p>
 
         {title === "Welcome back" ? (
           <p>
@@ -331,7 +323,7 @@ function App() {
 
         <Route
           path="/register"
-          element={<AuthPlaceholder title="Create your account" />}
+          element={<RegisterPage />}
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
