@@ -129,6 +129,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "last_name",
             "username",
             "bio",
+            "byb_signature",
             "profile_picture",
             "college",
             "course",
@@ -178,6 +179,21 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     def validate_bio(self, value):
         return value.strip()
+
+    def validate_byb_signature(self, value):
+        value = value.strip()
+
+        if len(value) > 160:
+            raise serializers.ValidationError(
+            "BYB Signature cannot exceed 160 characters."
+        )
+
+        if value and any(char.isspace() for char in value):
+            raise serializers.ValidationError(
+            "BYB Signature must be a single word."
+        )
+
+        return value
 
     def validate_college(self, value):
         return value.strip()

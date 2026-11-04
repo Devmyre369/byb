@@ -18,6 +18,7 @@ type UserProfile = {
   last_name: string;
   username: string;
   bio: string;
+  byb_signature: string;
   profile_picture: string | null;
   college: string;
   course: string;
@@ -92,6 +93,7 @@ const EMPTY_PROFILE: UserProfile = {
   last_name: "",
   username: "",
   bio: "",
+  byb_signature: "",
   profile_picture: null,
   college: "",
   course: "",
@@ -145,6 +147,8 @@ function ProfileSetupPage() {
             ...EMPTY_PROFILE,
             ...response.data.user,
             interests: response.data.user.interests || [],
+            byb_signature:
+              response.data.user.byb_signature || "",
           });
         }
       } catch (err) {
@@ -277,6 +281,7 @@ function ProfileSetupPage() {
         last_name: profile.last_name.trim(),
         username: profile.username.trim(),
         bio: profile.bio.trim(),
+        byb_signature: profile.byb_signature.trim(),
         college: profile.college.trim(),
         course: profile.course.trim(),
         academic_year: profile.academic_year,
@@ -295,6 +300,7 @@ function ProfileSetupPage() {
         ...EMPTY_PROFILE,
         ...updatedProfile,
         interests: updatedProfile.interests || [],
+        byb_signature: updatedProfile.byb_signature || "",
       });
 
       sessionStorage.setItem(
@@ -304,7 +310,6 @@ function ProfileSetupPage() {
 
       if (updatedProfile.is_profile_complete) {
         setSuccess("Your profile has been saved successfully.");
-
         navigate("/profile", { replace: true });
       } else {
         setSuccess(
@@ -503,6 +508,45 @@ function ProfileSetupPage() {
                   <span className="profile-character-count">
                     {profile.bio.length}/500
                   </span>
+                </div>
+
+                {/* BYB Signature */}
+                <div className="profile-field profile-field-full byb-signature-editor">
+                  <label htmlFor="byb-signature">
+                    BYB Signature
+                    <span className="byb-signature-optional">
+                      OPTIONAL
+                    </span>
+                  </label>
+
+                  <p className="byb-signature-description">
+                    Define yourself in one word. Make it your identity.
+                  </p>
+
+                  <input
+                    id="byb-signature"
+                    type="text"
+                    value={profile.byb_signature}
+                    onChange={(e) =>
+                      updateField(
+                        "byb_signature",
+                        e.target.value.replace(/\s/g, "")
+                      )
+                    }
+                    placeholder="e.g. Troubleshooter"
+                    maxLength={160}
+                    autoComplete="off"
+                  />
+
+                  <div className="byb-signature-footer">
+                    <span>
+                      One word. Your identity. Change it anytime.
+                    </span>
+
+                    <strong>
+                      {profile.byb_signature.length}/160
+                    </strong>
+                  </div>
                 </div>
               </div>
             </section>

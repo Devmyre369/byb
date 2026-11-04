@@ -13,6 +13,7 @@ type UserProfile = {
   last_name: string;
   username: string;
   bio: string;
+  byb_signature: string;
   profile_picture: string | null;
   college: string;
   course: string;
@@ -63,6 +64,8 @@ function ProfilePage() {
         if (active) {
           setProfile({
             ...response.data.user,
+            byb_signature:
+              response.data.user.byb_signature || "",
             interests: response.data.user.interests || [],
           });
         }
@@ -147,13 +150,33 @@ function ProfilePage() {
       </header>
 
       <section className="profile-view-card">
+        {/* PROFILE BANNER */}
         <div className="profile-view-cover">
-          <span className="profile-view-cover-brand">BYB.</span>
-          <span className="profile-view-cover-caption">
-            STEP OUTSIDE YOUR BUBBLE.
+          {/* BYB watermark: top-left */}
+          <span className="profile-view-cover-brand">
+            BYB.
           </span>
+
+          {/* Signature: centred */}
+          <div className="profile-view-signature">
+            <span className="profile-view-signature-label">
+              BYB SIGNATURE
+            </span>
+
+            {profile.byb_signature ? (
+              <h2>{profile.byb_signature}</h2>
+            ) : (
+              <Link
+                to="/profile/edit"
+                className="profile-view-signature-empty"
+              >
+                Add your BYB Signature ↗
+              </Link>
+            )}
+          </div>
         </div>
 
+        {/* PROFILE INFORMATION — BELOW BANNER */}
         <div className="profile-view-main">
           <div className="profile-view-avatar">
             {profile.profile_picture ? (
@@ -280,7 +303,9 @@ function ProfilePage() {
             <span className="profile-view-footer-label">
               YOUR BYB IDENTITY
             </span>
-            <p>Discover people. Explore experiences. Create opportunities.</p>
+            <p>
+              Discover people. Explore experiences. Create opportunities.
+            </p>
           </div>
 
           <Link

@@ -82,6 +82,15 @@ class User(AbstractUser):
         blank=True
     )
 
+    # Personal BYB Signature
+    # A short statement representing the user's identity.
+
+    byb_signature = models.CharField(
+        max_length=160,
+        blank=True,
+        default=""
+    )
+
     profile_picture = models.URLField(
         blank=True,
         null=True
