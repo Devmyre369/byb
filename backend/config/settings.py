@@ -152,7 +152,10 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 CORS_ALLOWED_ORIGINS = [
+
     "http://localhost:5173",
+    "http://localhost:5174",
+
 ]
 
 from datetime import timedelta
