@@ -1,5 +1,10 @@
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 
@@ -160,9 +165,9 @@ function ProfileSetupPage() {
     };
   }, []);
 
-  const updateField = (
-    field: keyof UserProfile,
-    value: string
+  const updateField = <K extends keyof UserProfile>(
+    field: K,
+    value: UserProfile[K]
   ) => {
     setProfile((current) => ({
       ...current,
@@ -236,7 +241,9 @@ function ProfileSetupPage() {
         response.data.url;
 
       if (!uploadedUrl) {
-        throw new Error("The server did not return the uploaded image URL.");
+        throw new Error(
+          "The server did not return the uploaded image URL."
+        );
       }
 
       setProfile((current) => ({
@@ -290,17 +297,19 @@ function ProfileSetupPage() {
         interests: updatedProfile.interests || [],
       });
 
-      setSuccess("Your profile has been saved successfully.");
+      sessionStorage.setItem(
+        "byb_user",
+        JSON.stringify(updatedProfile)
+      );
 
       if (updatedProfile.is_profile_complete) {
-        sessionStorage.setItem(
-          "byb_user",
-          JSON.stringify(updatedProfile)
-        );
+        setSuccess("Your profile has been saved successfully.");
 
-        setTimeout(() => {
-          navigate("/", { replace: true });
-        }, 800);
+        navigate("/profile", { replace: true });
+      } else {
+        setSuccess(
+          "Your profile has been saved. Complete the required fields to finish setup."
+        );
       }
     } catch (err) {
       setError(getErrorMessage(err));

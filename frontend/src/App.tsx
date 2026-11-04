@@ -10,6 +10,7 @@ import {
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import ProfileSetupPage from "./pages/ProfileSetupPage";
+import ProfilePage from "./pages/ProfilePage";
 
 import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -66,7 +67,8 @@ const events: Event[] = [
     location: "Lucknow",
     college: "University Campus",
     attendees: "120+ interested",
-    description: "Connect with founders, innovators and aspiring entrepreneurs.",
+    description:
+      "Connect with founders, innovators and aspiring entrepreneurs.",
     gradient: "linear-gradient(135deg, #251B36, #694078, #211519)",
   },
   {
@@ -78,7 +80,8 @@ const events: Event[] = [
     location: "Lucknow",
     college: "University Campus",
     attendees: "90+ interested",
-    description: "A space for creative people to exchange ideas and collaborate.",
+    description:
+      "A space for creative people to exchange ideas and collaborate.",
     gradient: "linear-gradient(135deg, #3B2020, #A64B36, #211519)",
   },
   {
@@ -90,7 +93,8 @@ const events: Event[] = [
     location: "Lucknow",
     college: "University Campus",
     attendees: "150+ interested",
-    description: "Bring your team and compete in an energetic campus sports meet.",
+    description:
+      "Bring your team and compete in an energetic campus sports meet.",
     gradient: "linear-gradient(135deg, #19382D, #34765A, #15221B)",
   },
 ];
@@ -128,7 +132,6 @@ function DiscoverPage() {
 
   return (
     <div className="content discover-page" id="discover">
-      {/* Page introduction */}
       <section className="discover-header">
         <div className="discover-heading-copy">
           <span className="event-category">BEYOND YOUR BUBBLE</span>
@@ -150,7 +153,6 @@ function DiscoverPage() {
         </div>
       </section>
 
-      {/* Search */}
       <section className="search-section">
         <span className="search-icon">⌕</span>
 
@@ -175,7 +177,6 @@ function DiscoverPage() {
         )}
       </section>
 
-      {/* Categories */}
       <section className="categories-section">
         <div className="category-list" aria-label="Filter events by category">
           {categories.map((category) => (
@@ -194,7 +195,6 @@ function DiscoverPage() {
         </div>
       </section>
 
-      {/* Featured event */}
       {featuredEvent && (
         <section className="featured-section">
           <div className="section-heading">
@@ -256,7 +256,6 @@ function DiscoverPage() {
         </section>
       )}
 
-      {/* Upcoming events */}
       <section className="events-section" id="events">
         <div className="section-heading">
           <div>
@@ -339,7 +338,6 @@ function DiscoverPage() {
         )}
       </section>
 
-      {/* Discovery footer */}
       <section className="discover-footer">
         <span className="discover-footer-brand">BYB.</span>
         <p>Step outside your bubble. Discover something new.</p>
@@ -348,7 +346,6 @@ function DiscoverPage() {
   );
 }
 
-// Temporary page until the actual feature is implemented.
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <section className="content">
@@ -386,11 +383,19 @@ function App() {
 
           {/* Protected destinations */}
           <Route element={<ProtectedRoute />}>
+            {/* View profile */}
             <Route
               path="profile"
+              element={<ProfilePage />}
+            />
+
+            {/* Edit profile */}
+            <Route
+              path="profile/edit"
               element={<ProfileSetupPage />}
             />
 
+            {/* New user profile setup */}
             <Route
               path="profile/setup"
               element={<ProfileSetupPage />}

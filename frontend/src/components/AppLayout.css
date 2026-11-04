@@ -614,3 +614,486 @@
     transition: none;
   }
 }
+
+
+
+/* =========================================
+   BYB PROFILE VIEW PAGE
+========================================= */
+
+.profile-view-page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 60px;
+}
+
+.profile-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.profile-view-header h1 {
+  margin: 10px 0 8px;
+  color: #f5f5f5;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 750;
+  letter-spacing: -1.5px;
+}
+
+.profile-view-header p {
+  color: #a5a5a5;
+  margin: 0;
+  font-size: 14px;
+}
+
+.profile-view-edit-button,
+.profile-view-footer-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 18px;
+  border-radius: 9px;
+  background: #e34250;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 650;
+  transition: background 0.2s ease;
+}
+
+.profile-view-edit-button:hover,
+.profile-view-footer-link:hover {
+  background: #f05260;
+}
+
+.profile-view-card {
+  overflow: hidden;
+  background: #181818;
+  border: 1px solid #303033;
+  border-radius: 16px;
+}
+
+.profile-view-cover {
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 25px 30px;
+  background:
+    radial-gradient(ellipse at 80% 20%, #69252e 0%, transparent 45%),
+    linear-gradient(120deg, #251316, #501d27 55%, #181818);
+}
+
+.profile-view-cover-brand {
+  color: white;
+  font-size: 32px;
+  font-weight: 850;
+  letter-spacing: -2px;
+}
+
+.profile-view-cover-caption {
+  align-self: flex-end;
+  color: #ffffff91;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.profile-view-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 0 32px 25px;
+}
+
+.profile-view-avatar {
+  width: 116px;
+  height: 116px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-top: -48px;
+  border: 5px solid #181818;
+  border-radius: 50%;
+  background: #302024;
+  color: white;
+  font-size: 34px;
+  font-weight: 750;
+}
+
+.profile-view-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-view-identity {
+  flex: 1;
+  min-width: 0;
+  padding-top: 18px;
+}
+
+.profile-view-name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.profile-view-name-row h2 {
+  margin: 0;
+  color: #f5f5f5;
+  font-size: 25px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
+}
+
+.profile-view-username {
+  margin: 5px 0 0;
+  color: #a5a5a5;
+  font-size: 14px;
+}
+
+.profile-view-account-type {
+  padding: 7px 12px;
+  border: 1px solid #71333b;
+  border-radius: 20px;
+  background: #3b2024;
+  color: #f18a94;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.profile-view-bio {
+  max-width: 650px;
+  margin: 18px 0 0;
+  color: #c3c3c3;
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.profile-view-divider {
+  height: 1px;
+  margin: 0 32px;
+  background: #303033;
+}
+
+.profile-view-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  padding: 30px 32px;
+}
+
+.profile-view-detail {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.profile-view-detail-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #373033;
+  border-radius: 11px;
+  background: #251c1e;
+  color: #e76b77;
+  font-size: 21px;
+}
+
+.profile-view-detail > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.profile-view-detail > div > span {
+  color: #858585;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.profile-view-detail strong {
+  color: #ededed;
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.profile-view-interests {
+  padding: 30px 32px;
+}
+
+.profile-view-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.profile-view-section-heading h3 {
+  margin: 8px 0 0;
+  color: #f5f5f5;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.profile-view-interest-count {
+  color: #999;
+  font-size: 12px;
+}
+
+.profile-view-interest-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-view-interest-chip {
+  padding: 9px 14px;
+  border: 1px solid #493036;
+  border-radius: 30px;
+  background: #261b1e;
+  color: #e9a0a7;
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.profile-view-empty {
+  color: #858585;
+  font-size: 13px;
+}
+
+.profile-view-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 25px 32px;
+}
+
+.profile-view-footer-label {
+  color: #e76b77;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+.profile-view-footer p {
+  margin: 7px 0 0;
+  color: #999;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.profile-view-loading,
+.profile-view-error {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.profile-view-loading p,
+.profile-view-error p {
+  color: #999;
+  font-size: 14px;
+}
+
+.profile-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #383838;
+  border-top-color: #e34250;
+  border-radius: 50%;
+  animation: profile-spin 0.8s linear infinite;
+}
+
+@keyframes profile-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.profile-view-error-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #3a2024;
+  color: #f18a94;
+  font-size: 22px;
+}
+
+.profile-view-error h2 {
+  color: #f5f5f5;
+  font-size: 20px;
+}
+
+.profile-view-retry {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #e34250;
+  color: white;
+  cursor: pointer;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .profile-view-header {
+    align-items: flex-start;
+  }
+
+  .profile-view-main {
+    gap: 18px;
+    padding-right: 22px;
+    padding-left: 22px;
+  }
+
+  .profile-view-details {
+    gap: 22px;
+    padding: 25px 22px;
+  }
+
+  .profile-view-divider {
+    margin-right: 22px;
+    margin-left: 22px;
+  }
+
+  .profile-view-interests {
+    padding: 25px 22px;
+  }
+
+  .profile-view-footer {
+    padding: 22px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 540px) {
+  .profile-view-page {
+    padding-bottom: 35px;
+  }
+
+  .profile-view-header {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .profile-view-edit-button {
+    width: 100%;
+  }
+
+  .profile-view-cover {
+    min-height: 135px;
+    padding: 18px;
+  }
+
+  .profile-view-cover-brand {
+    font-size: 26px;
+  }
+
+  .profile-view-cover-caption {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .profile-view-main {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 18px 22px;
+  }
+
+  .profile-view-avatar {
+    width: 94px;
+    height: 94px;
+    margin-top: -42px;
+    font-size: 28px;
+  }
+
+  .profile-view-identity {
+    width: 100%;
+    padding-top: 5px;
+  }
+
+  .profile-view-name-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .profile-view-name-row h2 {
+    font-size: 22px;
+  }
+
+  .profile-view-details {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 24px 18px;
+  }
+
+  .profile-view-divider {
+    margin: 0 18px;
+  }
+
+  .profile-view-interests {
+    padding: 24px 18px;
+  }
+
+  .profile-view-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 18px;
+  }
+
+  .profile-view-footer-link {
+    width: 100%;
+  }
+}
+
+
+/* Fix profile avatar overlapping the cover */
+.profile-view-main {
+  position: relative;
+  z-index: 2;
+}
+
+.profile-view-avatar {
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-view-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
