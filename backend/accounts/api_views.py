@@ -1,12 +1,17 @@
 
 import hashlib
+import logging
 
 from django.db import transaction
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    parser_classes,
+)
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -15,15 +20,17 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-from .models import User, EmailOTP
-from .serializers import RegisterSerializer, LoginSerializer
-from .utils import generate_email_otp
-import logging
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from PIL import Image, UnidentifiedImageError
 from cloudinary import uploader
-from rest_framework.decorators import parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
+
+from .models import User, EmailOTP
+from .serializers import RegisterSerializer, LoginSerializer
+from .utils import generate_email_otp
+
+
+logger = logging.getLogger(__name__)
 
 
 # -------------------------
@@ -264,7 +271,7 @@ def logout(request):
 
 # -------------------------
 # CURRENT USER PROFILE
-
+# -------------------------
 
 @api_view(["GET", "PATCH"])
 @permission_classes([IsAuthenticated])
@@ -299,7 +306,6 @@ def current_user(request):
     })
 
 
-
 # -------------------------
 # JWT TOKEN REFRESH
 # -------------------------
@@ -308,6 +314,9 @@ class BYBTokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
 
 
+# -------------------------
+# PUBLIC USER PROFILE
+# -------------------------
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -333,18 +342,26 @@ def public_user_profile(request, username):
             "is_verified": user.is_verified,
         }
     })
-logger = logging.getLogger(__name__)
 
+
+# -------------------------
+# UPLOAD PROFILE PICTURE
+# -------------------------
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def upload_profile_picture(request):
-    uploaded_file = request.FILES.get("image")
+
+    # IMPORTANT:
+    # React sends the file using the "profile_picture" field.
+    uploaded_file = request.FILES.get("profile_picture")
 
     if not uploaded_file:
         return Response(
-            {"error": "Please provide an image file."},
+            {
+                "error": "Please provide an image file using the profile_picture field."
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -355,7 +372,7 @@ def upload_profile_picture(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Validate actual image content, not just its extension
+    # Validate actual image content
     try:
         image = Image.open(uploaded_file)
 
@@ -373,12 +390,17 @@ def upload_profile_picture(request):
 
         image.verify()
 
-    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
+    except (
+        UnidentifiedImageError,
+        OSError,
+        Image.DecompressionBombError,
+    ):
         return Response(
             {"error": "Invalid or corrupted image file."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    # Reset file pointer before sending to Cloudinary
     uploaded_file.seek(0)
 
     try:
@@ -391,8 +413,12 @@ def upload_profile_picture(request):
             allowed_formats=["jpg", "jpeg", "png", "webp"],
         )
 
+        # Save Cloudinary URL to the user's profile
         request.user.profile_picture = result["secure_url"]
-        request.user.save(update_fields=["profile_picture"])
+
+        request.user.save(
+            update_fields=["profile_picture"]
+        )
 
         return Response({
             "status": "success",
@@ -401,7 +427,9 @@ def upload_profile_picture(request):
         }, status=status.HTTP_200_OK)
 
     except Exception:
-        logger.exception("Cloudinary profile-picture upload failed.")
+        logger.exception(
+            "Cloudinary profile-picture upload failed."
+        )
 
         return Response(
             {"error": "Image upload failed. Please try again."},
