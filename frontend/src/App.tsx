@@ -9,6 +9,7 @@ import {
 
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
+import ProfileSetupPage from "./pages/ProfileSetupPage";
 
 import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -387,7 +388,12 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route
               path="profile"
-              element={<PlaceholderPage title="My Profile" />}
+              element={<ProfileSetupPage />}
+            />
+
+            <Route
+              path="profile/setup"
+              element={<ProfileSetupPage />}
             />
 
             <Route

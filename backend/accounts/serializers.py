@@ -120,9 +120,11 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
+
         fields = [
             "id",
             "email",
+            "profile_type",
             "first_name",
             "last_name",
             "username",
@@ -142,6 +144,20 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "profile_picture",
             "is_profile_complete",
         ]
+
+    def validate_profile_type(self, value):
+
+        allowed_types = [
+            User.ProfileType.STUDENT,
+            User.ProfileType.PROFESSIONAL,
+        ]
+
+        if value not in allowed_types:
+            raise serializers.ValidationError(
+                "Choose either student or professional."
+            )
+
+        return value
 
     def validate_username(self, value):
 

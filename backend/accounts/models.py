@@ -47,6 +47,10 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
 
+    class ProfileType(models.TextChoices):
+        STUDENT = "student", "Student"
+        PROFESSIONAL = "professional", "Professional"
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -63,6 +67,14 @@ class User(AbstractUser):
         db_index=True
     )
 
+    # Profile type
+
+    profile_type = models.CharField(
+        max_length=20,
+        choices=ProfileType.choices,
+        default=ProfileType.STUDENT
+    )
+
     # Basic profile information
 
     bio = models.TextField(
@@ -75,7 +87,9 @@ class User(AbstractUser):
         null=True
     )
 
-    # Academic information
+    # Institution and professional/academic information
+    # Students: college, course, academic year
+    # Professionals: organization, department/role, experience level
 
     college = models.CharField(
         max_length=200,
@@ -117,6 +131,7 @@ class User(AbstractUser):
 
     @property
     def is_profile_complete(self):
+
         required_fields = [
             self.first_name,
             self.username,
@@ -126,9 +141,17 @@ class User(AbstractUser):
             self.city,
         ]
 
-        return all(
-            field and field.strip()
-            for field in required_fields
+        valid_profile_type = self.profile_type in [
+            self.ProfileType.STUDENT,
+            self.ProfileType.PROFESSIONAL,
+        ]
+
+        return (
+            valid_profile_type
+            and all(
+                field and field.strip()
+                for field in required_fields
+            )
         )
 
     def __str__(self):

@@ -1,6 +1,6 @@
 
 /* =========================================
-   APP LAYOUT
+   BYB — APP LAYOUT
 ========================================= */
 
 .app-layout {
@@ -24,14 +24,13 @@
 
   width: 250px;
   height: 100vh;
-  box-sizing: border-box;
-
   padding: 24px 16px;
+
+  box-sizing: border-box;
+  overflow-y: auto;
 
   background: #181818;
   border-right: 1px solid #303033;
-
-  overflow-y: auto;
 
   transition: width 0.3s ease, transform 0.3s ease;
 }
@@ -313,7 +312,6 @@
 ========================================= */
 
 @media (max-width: 768px) {
-
   /* Top Bar */
 
   .mobile-topbar {
