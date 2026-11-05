@@ -69,7 +69,9 @@ function LoginPage() {
 
   const redirectPath = requestedPage?.pathname
     ? `${requestedPage.pathname}${requestedPage.search || ""}${requestedPage.hash || ""}`
-    : "/";
+    : verified
+      ? "/profile/setup"
+      : "/";
 
   const [email, setEmail] = useState(verifiedEmail || "");
   const [password, setPassword] = useState("");

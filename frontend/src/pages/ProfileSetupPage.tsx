@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/client";
+import { useAuth } from "../context/AuthContext";
 
 type ProfileType = "student" | "professional";
 
@@ -123,6 +124,7 @@ function getErrorMessage(error: unknown): string {
 
 function ProfileSetupPage() {
   const navigate = useNavigate();
+  const { updateUser } = useAuth();
 
   const [profile, setProfile] = useState<UserProfile>(EMPTY_PROFILE);
   const [loading, setLoading] = useState(true);
@@ -294,28 +296,20 @@ function ProfileSetupPage() {
         payload
       );
 
-      const updatedProfile = response.data.user;
-
-      setProfile({
+      const updatedProfile = {
         ...EMPTY_PROFILE,
-        ...updatedProfile,
-        interests: updatedProfile.interests || [],
-        byb_signature: updatedProfile.byb_signature || "",
-      });
+        ...response.data.user,
+        interests: response.data.user.interests || [],
+        byb_signature:
+          response.data.user.byb_signature || "",
+      };
 
-      sessionStorage.setItem(
-        "byb_user",
-        JSON.stringify(updatedProfile)
-      );
+      setProfile(updatedProfile);
 
-      if (updatedProfile.is_profile_complete) {
-        setSuccess("Your profile has been saved successfully.");
-        navigate("/profile", { replace: true });
-      } else {
-        setSuccess(
-          "Your profile has been saved. Complete the required fields to finish setup."
-        );
-      }
+      // Synchronise the updated profile with AuthContext.
+      updateUser(updatedProfile);
+
+      navigate("/profile", { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -409,7 +403,11 @@ function ProfileSetupPage() {
                 <div className="profile-avatar">
                   {photoPreview || profile.profile_picture ? (
                     <img
-                      src={photoPreview || profile.profile_picture || ""}
+                      src={
+                        photoPreview ||
+                        profile.profile_picture ||
+                        ""
+                      }
                       alt="Profile"
                     />
                   ) : (
@@ -510,7 +508,6 @@ function ProfileSetupPage() {
                   </span>
                 </div>
 
-                {/* BYB Signature */}
                 <div className="profile-field profile-field-full byb-signature-editor">
                   <label htmlFor="byb-signature">
                     BYB Signature
