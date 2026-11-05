@@ -342,6 +342,7 @@ class EventParticipant(models.Model):
         ACCEPTED = "accepted", "Accepted"
         DECLINED = "declined", "Declined"
         REMOVED = "removed", "Removed"
+        LEFT = "Left", "Left"
 
     class Role(models.TextChoices):
         PARTICIPANT = "participant", "Participant"

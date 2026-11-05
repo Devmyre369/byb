@@ -291,7 +291,7 @@ class EventDetailView(APIView):
             {"detail": "Event deleted successfully."},
             status=status.HTTP_200_OK,
         )
-'''
+
 
 
 from django.db.models import Exists, OuterRef, Q
@@ -504,3 +504,504 @@ def can_discover_event(user, event):
         and event.status != Event.Status.ARCHIVED
         and event.visibility == Event.Visibility.PUBLIC
     )
+
+
+
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.shortcuts import get_object_or_404
+
+from rest_framework import status
+from rest_framework.exceptions import (
+    PermissionDenied as DRFPermissionDenied,
+    ValidationError as DRFValidationError,
+)
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from events.models import Event
+from events.serializers import EventSerializer
+from events.services.access import (
+    can_view_event,
+    get_accessible_events_queryset,
+)
+from events.services.event_service import soft_delete_event
+from events.services.permissions import can_edit_event
+
+
+class EventPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class EventListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = EventPagination
+
+    def get(self, request):
+        events = (
+            get_accessible_events_queryset(request.user)
+            .select_related("creator")
+            .prefetch_related("organisers")
+            .order_by("-created_at")
+        )
+
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(
+            events,
+            request,
+            view=self,
+        )
+
+        serializer = EventSerializer(
+            page,
+            many=True,
+            context={"request": request},
+        )
+
+        return paginator.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        serializer = EventSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+
+        serializer.is_valid(raise_exception=True)
+        event = serializer.save()
+
+        return Response(
+            EventSerializer(
+                event,
+                context={"request": request},
+            ).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class EventDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_event(self, event_id):
+        return get_object_or_404(
+            Event.objects.select_related("creator"),
+            pk=event_id,
+            is_deleted=False,
+        )
+
+    def get(self, request, event_id):
+        event = self.get_event(event_id)
+
+        if not can_view_event(request.user, event):
+            raise DRFPermissionDenied(
+                "You do not have permission to view this event."
+            )
+
+        serializer = EventSerializer(
+            event,
+            context={"request": request},
+        )
+
+        return Response(serializer.data)
+
+    def patch(self, request, event_id):
+        event = self.get_event(event_id)
+
+        if not can_edit_event(request.user, event):
+            raise DRFPermissionDenied(
+                "You do not have permission to edit this event."
+            )
+
+        serializer = EventSerializer(
+            event,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        for field, value in serializer.validated_data.items():
+            setattr(event, field, value)
+
+        try:
+            event.full_clean()
+            event.save()
+        except ValidationError as exc:
+            raise DRFValidationError(
+                exc.message_dict
+                if hasattr(exc, "message_dict")
+                else exc.messages
+            )
+
+        return Response(
+            EventSerializer(
+                event,
+                context={"request": request},
+            ).data
+        )
+
+    def delete(self, request, event_id):
+        event = self.get_event(event_id)
+
+        try:
+            soft_delete_event(
+                event=event,
+                user=request.user,
+            )
+        except PermissionDenied as exc:
+            raise DRFPermissionDenied(str(exc))
+
+        return Response(
+            {"detail": "Event deleted successfully."},
+            status=status.HTTP_200_OK,
+        )
+'''
+
+
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.shortcuts import get_object_or_404
+
+from rest_framework import status
+from rest_framework.exceptions import (
+    PermissionDenied as DRFPermissionDenied,
+    ValidationError as DRFValidationError,
+)
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from events.models import Event, EventOrganiser
+from events.serializers import EventSerializer
+
+from events.services.access import (
+    can_view_event,
+    get_accessible_events_queryset,
+)
+
+from events.services.event_service import soft_delete_event
+
+from events.services.organiser_service import (
+    add_co_organiser,
+    update_co_organiser_permissions,
+    remove_co_organiser,
+)
+
+from events.services.permissions import (
+    can_edit_event,
+    can_change_visibility,
+)
+
+
+User = get_user_model()
+
+
+def handle_service_validation_error(exc):
+    """
+    Convert Django ValidationError into a DRF ValidationError.
+    """
+    detail = (
+        exc.message_dict
+        if hasattr(exc, "message_dict")
+        else exc.messages
+    )
+    raise DRFValidationError(detail)
+
+
+def serialize_organiser(organiser):
+    """
+    Return organiser information without exposing unnecessary user data.
+    """
+    return {
+        "id": str(organiser.id),
+        "user_id": str(organiser.user_id),
+        "username": organiser.user.username,
+        "role": organiser.role,
+        "permissions": {
+            "can_edit_event": organiser.can_edit_event,
+            "can_manage_participants": organiser.can_manage_participants,
+            "can_manage_registrations": organiser.can_manage_registrations,
+            "can_change_visibility": organiser.can_change_visibility,
+            "can_moderate_media": organiser.can_moderate_media,
+            "can_delete_event": organiser.can_delete_event,
+        },
+        "added_at": organiser.added_at,
+    }
+
+
+class EventPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class EventListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = EventPagination
+
+    def get(self, request):
+        events = (
+            get_accessible_events_queryset(request.user)
+            .select_related("creator")
+            .prefetch_related("organisers")
+            .order_by("-created_at")
+        )
+
+        paginator = self.pagination_class()
+
+        page = paginator.paginate_queryset(
+            events,
+            request,
+            view=self,
+        )
+
+        serializer = EventSerializer(
+            page,
+            many=True,
+            context={"request": request},
+        )
+
+        return paginator.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        serializer = EventSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+
+        serializer.is_valid(raise_exception=True)
+        event = serializer.save()
+
+        return Response(
+            EventSerializer(
+                event,
+                context={"request": request},
+            ).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class EventDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_event(self, event_id):
+        return get_object_or_404(
+            Event.objects.select_related("creator"),
+            pk=event_id,
+            is_deleted=False,
+        )
+
+    def get(self, request, event_id):
+        event = self.get_event(event_id)
+
+        if not can_view_event(request.user, event):
+            raise DRFPermissionDenied(
+                "You do not have permission to view this event."
+            )
+
+        serializer = EventSerializer(
+            event,
+            context={"request": request},
+        )
+
+        return Response(serializer.data)
+
+    def patch(self, request, event_id):
+        event = self.get_event(event_id)
+
+        if not can_edit_event(request.user, event):
+            raise DRFPermissionDenied(
+                "You do not have permission to edit this event."
+            )
+
+        # Visibility changes require a separate permission.
+        if (
+            "visibility" in request.data
+            and not can_change_visibility(request.user, event)
+        ):
+            raise DRFPermissionDenied(
+                "You do not have permission to change event visibility."
+            )
+
+        serializer = EventSerializer(
+            event,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        for field, value in serializer.validated_data.items():
+            setattr(event, field, value)
+
+        try:
+            event.full_clean()
+            event.save()
+        except ValidationError as exc:
+            handle_service_validation_error(exc)
+
+        return Response(
+            EventSerializer(
+                event,
+                context={"request": request},
+            ).data
+        )
+
+    def delete(self, request, event_id):
+        event = self.get_event(event_id)
+
+        try:
+            soft_delete_event(
+                event=event,
+                user=request.user,
+            )
+        except PermissionDenied as exc:
+            raise DRFPermissionDenied(str(exc))
+        except ValidationError as exc:
+            handle_service_validation_error(exc)
+
+        return Response(
+            {"detail": "Event deleted successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class EventOrganiserListCreateView(APIView):
+    """
+    GET: List event organisers.
+    POST: Add a co-organiser.
+
+    Only the primary organiser can add co-organisers.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get_event(self, event_id):
+        return get_object_or_404(
+            Event,
+            pk=event_id,
+            is_deleted=False,
+        )
+
+    def get(self, request, event_id):
+        event = self.get_event(event_id)
+
+        if not can_view_event(request.user, event):
+            raise DRFPermissionDenied(
+                "You do not have permission to view this event."
+            )
+
+        organisers = (
+            EventOrganiser.objects
+            .filter(event=event)
+            .select_related("user")
+        )
+
+        return Response([
+            serialize_organiser(organiser)
+            for organiser in organisers
+        ])
+
+    def post(self, request, event_id):
+        event = self.get_event(event_id)
+
+        user_id = request.data.get("user_id")
+
+        if not user_id:
+            raise DRFValidationError({
+                "user_id": "This field is required."
+            })
+
+        user = get_object_or_404(User, pk=user_id)
+
+        permissions = request.data.get("permissions", {})
+
+        try:
+            organiser = add_co_organiser(
+                event=event,
+                actor=request.user,
+                user=user,
+                permissions=permissions,
+            )
+        except PermissionDenied as exc:
+            raise DRFPermissionDenied(str(exc))
+        except ValidationError as exc:
+            handle_service_validation_error(exc)
+
+        organiser = (
+            EventOrganiser.objects
+            .select_related("user")
+            .get(pk=organiser.pk)
+        )
+
+        return Response(
+            serialize_organiser(organiser),
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class EventOrganiserDetailView(APIView):
+    """
+    PATCH: Update co-organiser permissions.
+    DELETE: Remove a co-organiser.
+
+    Only the primary organiser can perform these actions.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get_event(self, event_id):
+        return get_object_or_404(
+            Event,
+            pk=event_id,
+            is_deleted=False,
+        )
+
+    def patch(self, request, event_id, organiser_id):
+        event = self.get_event(event_id)
+
+        permissions = request.data
+
+        try:
+            organiser = update_co_organiser_permissions(
+                event=event,
+                actor=request.user,
+                organiser_id=organiser_id,
+                permissions=permissions,
+            )
+        except PermissionDenied as exc:
+            raise DRFPermissionDenied(str(exc))
+        except ValidationError as exc:
+            handle_service_validation_error(exc)
+
+        organiser = (
+            EventOrganiser.objects
+            .select_related("user")
+            .get(pk=organiser.pk)
+        )
+
+        return Response(serialize_organiser(organiser))
+
+    def delete(self, request, event_id, organiser_id):
+        event = self.get_event(event_id)
+
+        try:
+            remove_co_organiser(
+                event=event,
+                actor=request.user,
+                organiser_id=organiser_id,
+            )
+        except PermissionDenied as exc:
+            raise DRFPermissionDenied(str(exc))
+        except ValidationError as exc:
+            handle_service_validation_error(exc)
+
+        return Response(
+            {"detail": "Co-organiser removed successfully."},
+            status=status.HTTP_200_OK,
+        )
