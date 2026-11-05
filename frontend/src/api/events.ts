@@ -36,6 +36,7 @@ export type EventListResponse = {
   results: EventItem[];
 };
 
+// Fetch paginated events.
 export async function getEvents(
   page = 1,
   pageSize = 20
@@ -46,6 +47,17 @@ export async function getEvents(
       page_size: pageSize,
     },
   });
+
+  return response.data;
+}
+
+// Fetch one event using its UUID.
+export async function getEvent(
+  eventId: string
+): Promise<EventItem> {
+  const response = await api.get<EventItem>(
+    `/events/${eventId}/`
+  );
 
   return response.data;
 }

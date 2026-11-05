@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
 import DiscoverPage from "./pages/DiscoverPage";
+import EventDetailPage from "./pages/EventDetailPage";
 
 import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,7 +42,7 @@ function App() {
 
         {/* Application layout */}
         <Route element={<AppLayout />}>
-          {/* Discover page - connected to backend API */}
+          {/* Discover page */}
           <Route index element={<DiscoverPage />} />
 
           {/* Public destinations */}
@@ -75,6 +76,12 @@ function App() {
             <Route
               path="saved"
               element={<PlaceholderPage title="Saved Events" />}
+            />
+
+            {/* Event details */}
+            <Route
+              path="events/:eventId"
+              element={<EventDetailPage />}
             />
 
             <Route

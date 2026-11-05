@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getEvents,
   type EventItem,
@@ -36,6 +37,8 @@ function getEventLocation(event: EventItem): string {
 }
 
 function DiscoverPage() {
+  const navigate = useNavigate();
+
   const [events, setEvents] = useState<EventItem[]>([]);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -238,7 +241,23 @@ function DiscoverPage() {
           <>
             <div className="event-grid">
               {filteredEvents.map((event) => (
-                <article className="event-card" key={event.id}>
+                <article
+                  className="event-card"
+                  key={event.id}
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`View event: ${event.title}`}
+                  onClick={() => navigate(`/events/${event.id}`)}
+                  onKeyDown={(keyboardEvent) => {
+                    if (
+                      keyboardEvent.key === "Enter" ||
+                      keyboardEvent.key === " "
+                    ) {
+                      keyboardEvent.preventDefault();
+                      navigate(`/events/${event.id}`);
+                    }
+                  }}
+                >
                   <div className="event-placeholder">
                     {event.cover_image ? (
                       <img
