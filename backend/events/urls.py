@@ -210,6 +210,7 @@ urlpatterns = [
 '''
 
 from django.urls import path
+from events.media_moderation_views import EventMediaModerationView
 
 from events.views import (
     EventListCreateView,
@@ -296,5 +297,11 @@ urlpatterns = [
         "<uuid:event_id>/media/",
         EventMediaUploadView.as_view(),
         name="event-media-upload",
+    ),
+        # Event image moderation
+    path(
+        "<uuid:event_id>/media/<uuid:media_id>/moderate/",
+        EventMediaModerationView.as_view(),
+        name="event-media-moderate",
     ),
 ]
