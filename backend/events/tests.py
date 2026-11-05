@@ -524,15 +524,7 @@ class EventAPITests(APITestCase):
 
 
 from datetime import timedelta
-from events.services.participant_service import (
-    request_to_join_event,
-    invite_to_event,
-    respond_to_invitation,
-    approve_join_request,
-    decline_join_request,
-    leave_event,
-    remove_participant,
-)
+from events.services.permissions import can_upload_event_media
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.urls import reverse
@@ -547,15 +539,30 @@ from events.models import (
     EventParticipant,
     EventRegistration,
 )
+
 from events.services.organiser_service import (
     add_co_organiser,
     update_co_organiser_permissions,
     remove_co_organiser,
 )
 
+from events.services.participant_service import (
+    request_to_join_event,
+    invite_to_event,
+    respond_to_invitation,
+    approve_join_request,
+    decline_join_request,
+    leave_event,
+    remove_participant,
+)
+
 
 User = get_user_model()
 
+
+# ======================================================
+# EVENT API TESTS
+# ======================================================
 
 class EventAPITests(APITestCase):
 
@@ -999,6 +1006,9 @@ class EventAPITests(APITestCase):
         self.assertFalse(organiser.can_delete_event)
 
 
+# ======================================================
+# EVENT ORGANISER API TESTS
+# ======================================================
 
 class EventOrganiserAPITests(APITestCase):
 
@@ -1241,6 +1251,10 @@ class EventOrganiserAPITests(APITestCase):
             Event.Visibility.PUBLIC,
         )
 
+
+# ======================================================
+# EVENT PARTICIPANT SERVICE TESTS
+# ======================================================
 
 class EventParticipantServiceTests(APITestCase):
 
@@ -1630,3 +1644,677 @@ class EventParticipantServiceTests(APITestCase):
                 actor=self.creator,
                 user=self.user,
             )
+
+
+# ======================================================
+# EVENT REGISTRATION API TESTS
+# ======================================================
+
+class EventRegistrationAPITests(APITestCase):
+
+    def setUp(self):
+        self.creator = User.objects.create_user(
+            email="registration_creator@example.com",
+            username="registration_creator",
+            password="TestPassword123!",
+        )
+
+        self.user = User.objects.create_user(
+            email="registration_user@example.com",
+            username="registration_user",
+            password="TestPassword123!",
+        )
+
+        self.second_user = User.objects.create_user(
+            email="registration_second@example.com",
+            username="registration_second",
+            password="TestPassword123!",
+        )
+
+        self.co_organiser = User.objects.create_user(
+            email="registration_coorganiser@example.com",
+            username="registration_coorganiser",
+            password="TestPassword123!",
+        )
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.creator)
+
+        self.event = self.create_event()
+
+    def create_event(self, **overrides):
+        data = {
+            "title": "BYB Public Registration Test",
+            "description": "Testing public event registration.",
+            "event_type": Event.EventType.PUBLIC,
+            "category": "Technology",
+            "starts_at": (
+                timezone.now() + timedelta(days=7)
+            ).isoformat(),
+            "visibility": Event.Visibility.PUBLIC,
+            "city": "Lucknow",
+            "registration_enabled": True,
+            "registration_mode": Event.RegistrationMode.AUTOMATIC,
+        }
+
+        data.update(overrides)
+
+        response = self.client.post(
+            reverse("event-list-create"),
+            data,
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            response.data,
+        )
+
+        return Event.objects.get(pk=response.data["id"])
+
+    def get_registration_url(self, event=None):
+        return reverse(
+            "event-registration-list-create",
+            kwargs={"event_id": (event or self.event).id},
+        )
+
+    def get_registration_me_url(self, event=None):
+        return reverse(
+            "event-registration-me",
+            kwargs={"event_id": (event or self.event).id},
+        )
+
+    def get_registration_detail_url(self, registration):
+        return reverse(
+            "event-registration-detail",
+            kwargs={
+                "event_id": registration.event_id,
+                "registration_id": registration.id,
+            },
+        )
+
+    # --------------------------------------------------
+    # Automatic registration
+    # --------------------------------------------------
+
+    def test_user_can_register_for_automatic_public_event(self):
+        # The attendee must not be the event creator.
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.get_registration_url(),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            response.data,
+        )
+
+        registration = EventRegistration.objects.get(
+            event=self.event,
+            user=self.user,
+        )
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.CONFIRMED,
+        )
+
+    def test_registration_is_created_as_pending_in_approval_mode(self):
+        event = self.create_event(
+            registration_mode=Event.RegistrationMode.APPROVAL,
+        )
+
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            response.data,
+        )
+
+        registration = EventRegistration.objects.get(
+            event=event,
+            user=self.user,
+        )
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.PENDING,
+        )
+
+    # --------------------------------------------------
+    # Cancellation
+    # --------------------------------------------------
+
+    def test_user_can_cancel_own_registration(self):
+        self.client.force_authenticate(user=self.user)
+
+        registration_response = self.client.post(
+            self.get_registration_url(),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            registration_response.status_code,
+            status.HTTP_201_CREATED,
+            registration_response.data,
+        )
+
+        response = self.client.delete(
+            self.get_registration_me_url()
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            response.data,
+        )
+
+        registration = EventRegistration.objects.get(
+            event=self.event,
+            user=self.user,
+        )
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.CANCELLED,
+        )
+        self.assertIsNotNone(registration.cancelled_at)
+
+    # --------------------------------------------------
+    # Organiser approval and rejection
+    # --------------------------------------------------
+
+    def create_pending_registration(self, user=None):
+        user = user or self.user
+
+        event = self.create_event(
+            registration_mode=Event.RegistrationMode.APPROVAL,
+        )
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            response.data,
+        )
+
+        return EventRegistration.objects.get(
+            event=event,
+            user=user,
+        )
+
+    def test_primary_organiser_can_approve_registration(self):
+        registration = self.create_pending_registration()
+
+        self.client.force_authenticate(user=self.creator)
+
+        response = self.client.patch(
+            self.get_registration_detail_url(registration),
+            {"action": "approve"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            response.data,
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.CONFIRMED,
+        )
+
+    def test_primary_organiser_can_reject_registration(self):
+        registration = self.create_pending_registration()
+
+        self.client.force_authenticate(user=self.creator)
+
+        response = self.client.patch(
+            self.get_registration_detail_url(registration),
+            {"action": "reject"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            response.data,
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.REJECTED,
+        )
+
+    # --------------------------------------------------
+    # Registration management permissions
+    # --------------------------------------------------
+
+    def test_ordinary_user_cannot_list_all_registrations(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get(
+            self.get_registration_url()
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_ordinary_user_cannot_approve_registration(self):
+        registration = self.create_pending_registration()
+
+        self.client.force_authenticate(user=self.second_user)
+
+        response = self.client.patch(
+            self.get_registration_detail_url(registration),
+            {"action": "approve"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.PENDING,
+        )
+
+    def test_co_organiser_with_registration_permission_can_approve(self):
+        registration = self.create_pending_registration()
+
+        add_co_organiser(
+            event=registration.event,
+            actor=self.creator,
+            user=self.co_organiser,
+            permissions={
+                "can_manage_registrations": True,
+            },
+        )
+
+        self.client.force_authenticate(user=self.co_organiser)
+
+        response = self.client.patch(
+            self.get_registration_detail_url(registration),
+            {"action": "approve"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            response.data,
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            EventRegistration.Status.CONFIRMED,
+        )
+
+    # --------------------------------------------------
+    # Capacity and registration restrictions
+    # --------------------------------------------------
+
+    def test_event_capacity_blocks_additional_registration(self):
+        event = self.create_event(capacity=1)
+
+        self.client.force_authenticate(user=self.user)
+
+        first_response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            first_response.status_code,
+            status.HTTP_201_CREATED,
+            first_response.data,
+        )
+
+        self.client.force_authenticate(user=self.second_user)
+
+        second_response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            second_response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+        self.assertEqual(
+            EventRegistration.objects.filter(
+                event=event,
+                status=EventRegistration.Status.CONFIRMED,
+            ).count(),
+            1,
+        )
+
+    def test_disabled_registration_rejects_new_registration(self):
+        event = self.create_event(
+            registration_enabled=False,
+        )
+
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+    def test_closed_registration_window_rejects_registration(self):
+        event = self.create_event(
+            registration_closes_at=(
+                timezone.now() - timedelta(hours=1)
+            ).isoformat(),
+        )
+
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+    def test_social_event_rejects_public_registration(self):
+        event = self.create_event(
+            event_type=Event.EventType.SOCIAL,
+        )
+
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.get_registration_url(event),
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+# ======================================================
+# EVENT MEDIA UPLOAD PERMISSION TESTS
+# ======================================================
+
+class EventMediaUploadPermissionTests(APITestCase):
+
+    def setUp(self):
+        self.creator = User.objects.create_user(
+            email="media_creator@example.com",
+            username="media_creator",
+            password="TestPassword123!",
+        )
+
+        self.user = User.objects.create_user(
+            email="media_user@example.com",
+            username="media_user",
+            password="TestPassword123!",
+        )
+
+        self.other_user = User.objects.create_user(
+            email="media_other@example.com",
+            username="media_other",
+            password="TestPassword123!",
+        )
+
+    def create_event(self, event_type, **overrides):
+        return Event.objects.create(
+            creator=self.creator,
+            title="Media Permission Test",
+            description="Testing media upload permissions.",
+            event_type=event_type,
+            category="Technology",
+            starts_at=timezone.now() + timedelta(days=7),
+            visibility=Event.Visibility.PUBLIC,
+            **overrides,
+        )
+
+    # --------------------------------------------------
+    # Personal event permissions
+    # --------------------------------------------------
+
+    def test_personal_event_creator_can_upload(self):
+        event = self.create_event(Event.EventType.PERSONAL)
+
+        self.assertTrue(
+            can_upload_event_media(self.creator, event)
+        )
+
+    def test_authorised_personal_contributor_can_upload(self):
+        event = self.create_event(Event.EventType.PERSONAL)
+
+        EventParticipant.objects.create(
+            event=event,
+            user=self.user,
+            status=EventParticipant.Status.INVITED,
+            can_upload_media=True,
+        )
+
+        self.assertTrue(
+            can_upload_event_media(self.user, event)
+        )
+
+    def test_unauthorised_personal_participant_cannot_upload(self):
+        event = self.create_event(Event.EventType.PERSONAL)
+
+        EventParticipant.objects.create(
+            event=event,
+            user=self.user,
+            status=EventParticipant.Status.INVITED,
+            can_upload_media=False,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.user, event)
+        )
+
+    # --------------------------------------------------
+    # Social event permissions
+    # --------------------------------------------------
+
+    def test_accepted_social_participant_can_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        EventParticipant.objects.create(
+            event=event,
+            user=self.user,
+            status=EventParticipant.Status.ACCEPTED,
+        )
+
+        self.assertTrue(
+            can_upload_event_media(self.user, event)
+        )
+
+    def test_pending_social_request_cannot_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        EventParticipant.objects.create(
+            event=event,
+            user=self.user,
+            status=EventParticipant.Status.REQUESTED,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.user, event)
+        )
+
+    def test_removed_social_participant_cannot_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        EventParticipant.objects.create(
+            event=event,
+            user=self.user,
+            status=EventParticipant.Status.REMOVED,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.user, event)
+        )
+
+    # --------------------------------------------------
+    # Public event permissions
+    # --------------------------------------------------
+
+    def test_confirmed_public_attendee_can_upload(self):
+        event = self.create_event(Event.EventType.PUBLIC)
+
+        EventRegistration.objects.create(
+            event=event,
+            user=self.user,
+            status=EventRegistration.Status.CONFIRMED,
+        )
+
+        self.assertTrue(
+            can_upload_event_media(self.user, event)
+        )
+
+    def test_pending_public_registration_cannot_upload(self):
+        event = self.create_event(Event.EventType.PUBLIC)
+
+        EventRegistration.objects.create(
+            event=event,
+            user=self.user,
+            status=EventRegistration.Status.PENDING,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.user, event)
+        )
+
+    def test_cancelled_public_registration_cannot_upload(self):
+        event = self.create_event(Event.EventType.PUBLIC)
+
+        EventRegistration.objects.create(
+            event=event,
+            user=self.user,
+            status=EventRegistration.Status.CANCELLED,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.user, event)
+        )
+
+    # --------------------------------------------------
+    # Organiser permissions
+    # --------------------------------------------------
+
+    def test_co_organiser_with_media_permission_can_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        EventOrganiser.objects.create(
+            event=event,
+            user=self.user,
+            role=EventOrganiser.Role.CO_ORGANISER,
+            can_moderate_media=True,
+        )
+
+        self.assertTrue(
+            can_upload_event_media(self.user, event)
+        )
+
+    def test_co_organiser_without_media_permission_cannot_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        EventOrganiser.objects.create(
+            event=event,
+            user=self.user,
+            role=EventOrganiser.Role.CO_ORGANISER,
+            can_moderate_media=False,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.user, event)
+        )
+
+    # --------------------------------------------------
+    # Event lifecycle restrictions
+    # --------------------------------------------------
+
+    def test_archived_event_rejects_new_media_uploads(self):
+        event = self.create_event(
+            Event.EventType.SOCIAL,
+            status=Event.Status.ARCHIVED,
+        )
+
+        self.assertFalse(
+            can_upload_event_media(self.creator, event)
+        )
+
+    def test_deleted_event_rejects_new_media_uploads(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        event.is_deleted = True
+        event.deleted_at = timezone.now()
+        event.deleted_by = self.creator
+        event.save()
+
+        self.assertFalse(
+            can_upload_event_media(self.creator, event)
+        )
+
+    # --------------------------------------------------
+    # Authentication restrictions
+    # --------------------------------------------------
+
+    def test_anonymous_user_cannot_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        self.assertFalse(
+            can_upload_event_media(None, event)
+        )
+
+    def test_unrelated_user_cannot_upload(self):
+        event = self.create_event(Event.EventType.SOCIAL)
+
+        self.assertFalse(
+            can_upload_event_media(self.other_user, event)
+        )
