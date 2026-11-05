@@ -15,8 +15,8 @@ const api = axios.create({
   },
 });
 
-// Separate Axios instance for refreshing tokens.
-// This prevents refresh requests from triggering the same interceptor.
+// Separate Axios instance prevents refresh requests
+// from triggering the same response interceptor.
 const refreshClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -32,11 +32,30 @@ type RefreshResponse = {
 };
 
 let refreshPromise: Promise<string> | null = null;
+let isHandlingAuthExpiry = false;
+
+function handleAuthExpiry() {
+  sessionStorage.removeItem("byb_access_token");
+  sessionStorage.removeItem("byb_refresh_token");
+  sessionStorage.removeItem("byb_user");
+
+  if (!isHandlingAuthExpiry) {
+    isHandlingAuthExpiry = true;
+
+    window.dispatchEvent(
+      new Event("byb:auth-expired")
+    );
+
+    window.location.assign("/login");
+  }
+}
 
 // Attach JWT access token to outgoing requests.
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const accessToken = sessionStorage.getItem("byb_access_token");
+    const accessToken = sessionStorage.getItem(
+      "byb_access_token"
+    );
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -51,7 +70,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config as RetryConfig | undefined;
+    const originalRequest = error.config as
+      | RetryConfig
+      | undefined;
 
     if (
       error.response?.status !== 401 ||
@@ -86,8 +107,7 @@ api.interceptors.response.use(
     );
 
     if (!refreshToken) {
-      sessionStorage.clear();
-      window.location.assign("/login");
+      handleAuthExpiry();
       return Promise.reject(error);
     }
 
@@ -109,7 +129,7 @@ api.interceptors.response.use(
               newAccessToken
             );
 
-            // Django SimpleJWT may rotate the refresh token.
+            // Support refresh-token rotation.
             if (response.data.refresh) {
               sessionStorage.setItem(
                 "byb_refresh_token",
@@ -131,12 +151,7 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch (refreshError) {
-      sessionStorage.removeItem("byb_access_token");
-      sessionStorage.removeItem("byb_refresh_token");
-      sessionStorage.removeItem("byb_user");
-
-      window.location.assign("/login");
-
+      handleAuthExpiry();
       return Promise.reject(refreshError);
     }
   }

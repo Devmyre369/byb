@@ -1,5 +1,12 @@
+
 import { useState } from "react";
-import { NavLink, Outlet, Link } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  Link,
+  useNavigate,
+} from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./AppLayout.css";
 
 const navigation = [
@@ -13,6 +20,9 @@ function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const toggleSidebar = () => {
     setIsCollapsed((previous) => !previous);
   };
@@ -25,6 +35,12 @@ function AppLayout() {
     setIsMobileMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    logout();
+    closeMobileMenu();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div
       className={`app-layout ${
@@ -33,7 +49,11 @@ function AppLayout() {
     >
       {/* Mobile Top Bar */}
       <header className="mobile-topbar">
-        <Link to="/" className="mobile-brand" onClick={closeMobileMenu}>
+        <Link
+          to="/"
+          className="mobile-brand"
+          onClick={closeMobileMenu}
+        >
           BYB<span>.</span>
         </Link>
 
@@ -60,11 +80,14 @@ function AppLayout() {
       {/* Sidebar */}
       <aside className="app-sidebar">
         <div className="sidebar-header">
-          <Link to="/" className="sidebar-brand" onClick={closeMobileMenu}>
+          <Link
+            to="/"
+            className="sidebar-brand"
+            onClick={closeMobileMenu}
+          >
             BYB<span>.</span>
           </Link>
 
-          {/* Desktop and Tablet Toggle */}
           <button
             type="button"
             className="sidebar-toggle"
@@ -75,7 +98,6 @@ function AppLayout() {
             {isCollapsed ? "☰" : "×"}
           </button>
 
-          {/* Mobile Drawer Close Button */}
           <button
             type="button"
             className="mobile-drawer-close"
@@ -103,7 +125,9 @@ function AppLayout() {
                 }
               >
                 <span className="app-nav-icon">{item.icon}</span>
-                <span className="sidebar-link-text">{item.label}</span>
+                <span className="sidebar-link-text">
+                  {item.label}
+                </span>
               </NavLink>
             ))}
           </nav>
@@ -152,6 +176,19 @@ function AppLayout() {
               </span>
             </NavLink>
           </nav>
+        </div>
+
+        {/* Logout */}
+        <div className="sidebar-section">
+          <button
+            type="button"
+            className="app-nav-link"
+            onClick={handleLogout}
+            title={isCollapsed ? "Logout" : undefined}
+          >
+            <span className="app-nav-icon">↪</span>
+            <span className="sidebar-link-text">Logout</span>
+          </button>
         </div>
 
         {/* Sidebar Footer */}

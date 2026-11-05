@@ -6,17 +6,14 @@ import {
   useNavigate,
 } from "react-router-dom";
 import api from "../api/client";
+import { useAuth, type AuthUser } from "../context/AuthContext";
 
 type LoginResponse = {
   status: string;
   message: string;
   access: string;
   refresh: string;
-  user: {
-    id: string;
-    email: string;
-    username: string;
-  };
+  user: AuthUser;
 };
 
 type LoginLocationState = {
@@ -60,6 +57,7 @@ function getErrorMessage(error: unknown): string {
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
   const locationState =
     (location.state as LoginLocationState | null) || null;
@@ -96,12 +94,10 @@ function LoginPage() {
 
       const { access, refresh, user } = response.data;
 
-      // Store tokens for the current browser tab.
-      sessionStorage.setItem("byb_access_token", access);
-      sessionStorage.setItem("byb_refresh_token", refresh);
-      sessionStorage.setItem("byb_user", JSON.stringify(user));
+      // Update shared authentication state.
+      login(access, refresh, user);
 
-      // Return the user to the page they originally requested.
+      // Return the user to the originally requested page.
       navigate(redirectPath, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err));

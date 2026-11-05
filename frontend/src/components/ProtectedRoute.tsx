@@ -1,14 +1,12 @@
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function ProtectedRoute() {
+  const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  const accessToken = sessionStorage.getItem("byb_access_token");
-  const refreshToken = sessionStorage.getItem("byb_refresh_token");
-
-  // No stored authentication tokens: redirect to login.
-  if (!accessToken || !refreshToken) {
+  if (!isAuthenticated) {
     return (
       <Navigate
         to="/login"
