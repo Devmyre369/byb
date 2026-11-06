@@ -61,3 +61,36 @@ export async function getEvent(
 
   return response.data;
 }
+
+
+
+export type CreateEventPayload = {
+  title: string;
+  description: string;
+  event_type: "personal" | "social" | "public";
+  category: string;
+  cover_image: string;
+  starts_at: string;
+  ends_at: string | null;
+  timezone: string;
+  location_name: string;
+  location_address: string;
+  city: string;
+  visibility: "private" | "selected" | "public";
+  capacity: number | null;
+  registration_enabled: boolean;
+  registration_mode: "automatic" | "approval";
+  registration_opens_at: string | null;
+  registration_closes_at: string | null;
+};
+
+export async function createEvent(
+  payload: CreateEventPayload
+): Promise<EventItem> {
+  const response = await api.post<EventItem>(
+    "/events/",
+    payload
+  );
+
+  return response.data;
+}

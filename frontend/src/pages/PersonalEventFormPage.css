@@ -1,0 +1,426 @@
+
+/* =========================================
+   BYB — PERSONAL EVENT FORM
+========================================= */
+
+.personal-event-page {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 28px 60px;
+  color: #f5f5f5;
+}
+
+/* Header */
+
+.personal-event-header {
+  margin-bottom: 35px;
+}
+
+.personal-event-back {
+  display: block;
+  margin-bottom: 30px;
+  padding: 9px 13px;
+  color: #c4c4c9;
+  background: #1b1b1e;
+  border: 1px solid #343438;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.personal-event-back:hover {
+  background: #29292d;
+}
+
+.personal-event-eyebrow {
+  color: #e34250;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.personal-event-header h1 {
+  margin: 13px 0 10px;
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 750;
+  letter-spacing: -1.6px;
+}
+
+.personal-event-header > p {
+  max-width: 620px;
+  margin: 0;
+  color: #99999f;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* Form layout */
+
+.personal-event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.personal-event-section {
+  padding: 26px;
+  background: #181818;
+  border: 1px solid #303033;
+  border-radius: 14px;
+}
+
+.personal-event-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.personal-event-step {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 35px;
+  height: 35px;
+  color: #f05260;
+  background: rgba(227, 66, 80, 0.12);
+  border: 1px solid rgba(227, 66, 80, 0.25);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.personal-event-section-heading h2 {
+  margin: 2px 0 5px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.personal-event-section-heading p {
+  margin: 0;
+  color: #929298;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Fields */
+
+.personal-event-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px 16px;
+}
+
+.personal-event-fields.two-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.personal-event-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 9px;
+}
+
+.personal-event-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.personal-event-field > span {
+  color: #e8e8e8;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.personal-event-field input,
+.personal-event-field textarea,
+.personal-event-field select {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 14px;
+  color: #f5f5f5;
+  background: #101010;
+  border: 1px solid #353539;
+  border-radius: 9px;
+  outline: none;
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.personal-event-field input {
+  min-height: 45px;
+}
+
+.personal-event-field textarea {
+  min-height: 125px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.personal-event-field select {
+  min-height: 45px;
+  cursor: pointer;
+}
+
+.personal-event-field input:focus,
+.personal-event-field textarea:focus,
+.personal-event-field select:focus {
+  border-color: #e34250;
+  box-shadow: 0 0 0 3px rgba(227, 66, 80, 0.1);
+}
+
+.personal-event-field input::placeholder,
+.personal-event-field textarea::placeholder {
+  color: #68686e;
+}
+
+.personal-event-field input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+.personal-event-field small {
+  color: #77777d;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Cover image preview */
+
+.personal-event-image-preview {
+  width: 100%;
+  max-height: 280px;
+  overflow: hidden;
+  background: #101010;
+  border: 1px solid #353539;
+  border-radius: 10px;
+}
+
+.personal-event-image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+}
+
+/* Privacy options */
+
+.personal-event-visibility {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.personal-event-visibility-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 145px;
+  padding: 17px;
+  background: #202022;
+  border: 1px solid #353539;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.personal-event-visibility-option:hover {
+  border-color: #66666c;
+}
+
+.personal-event-visibility-option.active {
+  background: rgba(227, 66, 80, 0.08);
+  border-color: #e34250;
+}
+
+.personal-event-visibility-option input {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 16px;
+  height: 16px;
+  accent-color: #e34250;
+  cursor: pointer;
+}
+
+.visibility-symbol {
+  margin-bottom: 15px;
+  color: #f05260;
+  font-size: 22px;
+}
+
+.personal-event-visibility-option strong {
+  margin-bottom: 6px;
+  color: #ededed;
+  font-size: 12px;
+}
+
+.personal-event-visibility-option small {
+  color: #929298;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.personal-event-note {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  color: #a5a5ab;
+  background: #202022;
+  border-left: 2px solid #e34250;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* Errors */
+
+.personal-event-error {
+  padding: 15px 17px;
+  color: #ff9ca5;
+  background: rgba(227, 66, 80, 0.1);
+  border: 1px solid rgba(227, 66, 80, 0.35);
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+/* Submit */
+
+.personal-event-submit-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 2px 0;
+}
+
+.personal-event-submit-area strong {
+  color: #e5e5e5;
+  font-size: 13px;
+}
+
+.personal-event-submit-area p {
+  margin: 6px 0 0;
+  color: #85858b;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.personal-event-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-width: 205px;
+  padding: 14px 20px;
+  color: white;
+  background: #e34250;
+  border: 1px solid #e34250;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.personal-event-submit:hover:not(:disabled) {
+  background: #f05260;
+  transform: translateY(-1px);
+}
+
+.personal-event-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.personal-event-submit span {
+  font-size: 18px;
+}
+
+/* Tablet */
+
+@media (max-width: 768px) {
+  .personal-event-page {
+    padding: 25px 20px 45px;
+  }
+
+  .personal-event-section {
+    padding: 22px;
+  }
+
+  .personal-event-visibility {
+    grid-template-columns: 1fr;
+  }
+
+  .personal-event-visibility-option {
+    min-height: 110px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 560px) {
+  .personal-event-page {
+    padding: 20px 14px 35px;
+  }
+
+  .personal-event-header {
+    margin-bottom: 27px;
+  }
+
+  .personal-event-header h1 {
+    font-size: 30px;
+  }
+
+  .personal-event-section {
+    padding: 19px 15px;
+    border-radius: 12px;
+  }
+
+  .personal-event-section-heading {
+    gap: 11px;
+    margin-bottom: 20px;
+  }
+
+  .personal-event-section-heading h2 {
+    font-size: 15px;
+  }
+
+  .personal-event-fields.two-columns {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+
+  .personal-event-field.full-width {
+    grid-column: auto;
+  }
+
+  .personal-event-visibility-option {
+    min-height: 105px;
+  }
+
+  .personal-event-submit-area {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .personal-event-submit {
+    width: 100%;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .personal-event-page *,
+  .personal-event-page *::before,
+  .personal-event-page *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

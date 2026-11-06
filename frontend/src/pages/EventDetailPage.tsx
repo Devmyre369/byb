@@ -12,11 +12,56 @@ function formatDate(dateString: string, timezone: string) {
     return "Date not available";
   }
 
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "full",
-    timeStyle: "short",
-    timeZone: timezone || undefined,
-  }).format(date);
+  try {
+    return new Intl.DateTimeFormat("en-IN", {
+      dateStyle: "full",
+      timeStyle: "short",
+      timeZone: timezone || undefined,
+    }).format(date);
+  } catch {
+    return new Intl.DateTimeFormat("en-IN", {
+      dateStyle: "full",
+      timeStyle: "short",
+    }).format(date);
+  }
+}
+
+function formatLabel(value: string) {
+  if (!value) return "Not specified";
+
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getErrorMessage(err: unknown) {
+  const error = err as {
+    response?: {
+      status?: number;
+      data?: {
+        detail?: string;
+      };
+    };
+  };
+
+  const status = error?.response?.status;
+
+  if (status === 404) {
+    return "This event could not be found.";
+  }
+
+  if (status === 403) {
+    return "You do not have permission to view this event.";
+  }
+
+  if (status === 401) {
+    return "Your session has expired. Please log in again.";
+  }
+
+  return (
+    error?.response?.data?.detail ||
+    "Unable to load this event. Please try again."
+  );
 }
 
 function EventDetailPage() {
@@ -25,6 +70,7 @@ function EventDetailPage() {
   const [event, setEvent] = useState<EventItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -45,22 +91,10 @@ function EventDetailPage() {
         if (isMounted) {
           setEvent(data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
-          const status = err?.response?.status;
-
-          if (status === 404) {
-            setError("This event could not be found.");
-          } else if (status === 403) {
-            setError("You do not have permission to view this event.");
-          } else if (status === 401) {
-            setError("Your session has expired. Please log in again.");
-          } else {
-            setError(
-              err?.response?.data?.detail ||
-              "Unable to load this event. Please try again."
-            );
-          }
+          setEvent(null);
+          setError(getErrorMessage(err));
         }
       } finally {
         if (isMounted) {
@@ -74,12 +108,19 @@ function EventDetailPage() {
     return () => {
       isMounted = false;
     };
-  }, [eventId]);
+  }, [eventId, retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount((previous) => previous + 1);
+  };
 
   if (loading) {
     return (
       <section className="content event-detail-page">
-        <p className="event-detail-message">Loading event...</p>
+        <div className="event-detail-loading">
+          <div className="event-loading-spinner" />
+          <p>Loading event...</p>
+        </div>
       </section>
     );
   }
@@ -87,13 +128,34 @@ function EventDetailPage() {
   if (error || !event) {
     return (
       <section className="content event-detail-page">
-        <Link to="/" className="event-back-link">
+        <Link to="/discover" className="event-back-link">
           ← Back to Discover
         </Link>
 
         <div className="event-detail-message">
+          <span className="event-category">
+            BEYOND YOUR BUBBLE
+          </span>
+
           <h2>Event unavailable</h2>
-          <p>{error || "The requested event could not be loaded."}</p>
+
+          <p>
+            {error || "The requested event could not be loaded."}
+          </p>
+
+          {error.includes("session has expired") ? (
+            <Link to="/login" className="event-retry-button">
+              Sign In Again
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="event-retry-button"
+              onClick={handleRetry}
+            >
+              Try Again
+            </button>
+          )}
         </div>
       </section>
     );
@@ -104,27 +166,29 @@ function EventDetailPage() {
     event.city,
   ].filter(Boolean).join(", ");
 
-  const eventType = event.event_type || "Event";
+  const eventType = formatLabel(event.event_type || "event");
 
   return (
     <section className="content event-detail-page">
-      <Link to="/" className="event-back-link">
+      <Link to="/discover" className="event-back-link">
         ← Back to Discover
       </Link>
 
-      <div className="event-detail-card">
-        {event.cover_image ? (
-          <img
-            src={event.cover_image}
-            alt={event.title}
-            className="event-detail-cover"
-          />
-        ) : (
-          <div className="event-detail-cover event-detail-cover-fallback">
-            <span>BEYOND YOUR BUBBLE</span>
-            <h2>{event.title}</h2>
-          </div>
-        )}
+      <article className="event-detail-card">
+        <div className="event-detail-cover-wrapper">
+          {event.cover_image ? (
+            <img
+              src={event.cover_image}
+              alt={`${event.title} cover`}
+              className="event-detail-cover"
+            />
+          ) : (
+            <div className="event-detail-cover event-detail-cover-fallback">
+              <span>BEYOND YOUR BUBBLE</span>
+              <h2>{event.title}</h2>
+            </div>
+          )}
+        </div>
 
         <div className="event-detail-content">
           <div className="event-detail-labels">
@@ -134,12 +198,12 @@ function EventDetailPage() {
 
             {event.category && (
               <span className="event-detail-category">
-                {event.category}
+                {formatLabel(event.category)}
               </span>
             )}
 
             <span className="event-detail-status">
-              {event.status}
+              {formatLabel(event.status)}
             </span>
           </div>
 
@@ -153,17 +217,23 @@ function EventDetailPage() {
             </p>
           )}
 
+          <div className="event-detail-section-heading">
+            <h2>Event Information</h2>
+            <span>Everything you need to know</span>
+          </div>
+
           <div className="event-detail-information">
             <div className="event-detail-info-item">
               <span className="event-detail-info-label">
                 DATE AND TIME
               </span>
+
               <p>
                 {formatDate(event.starts_at, event.timezone)}
               </p>
 
               {event.ends_at && (
-                <p>
+                <p className="event-detail-secondary">
                   Ends: {formatDate(event.ends_at, event.timezone)}
                 </p>
               )}
@@ -173,46 +243,58 @@ function EventDetailPage() {
               <span className="event-detail-info-label">
                 LOCATION
               </span>
+
               <p>
-                {location || event.location_address || "Location not specified"}
+                {location ||
+                  event.location_address ||
+                  "Location not specified"}
               </p>
 
               {event.location_address && location && (
-                <p>{event.location_address}</p>
+                <p className="event-detail-secondary">
+                  {event.location_address}
+                </p>
               )}
             </div>
 
             <div className="event-detail-info-item">
               <span className="event-detail-info-label">
-                EVENT VISIBILITY
+                VISIBILITY
               </span>
-              <p>{event.visibility}</p>
+
+              <p>{formatLabel(event.visibility)}</p>
             </div>
 
             <div className="event-detail-info-item">
               <span className="event-detail-info-label">
                 CAPACITY
               </span>
+
               <p>
-                {event.capacity
+                {event.capacity !== null && event.capacity !== undefined
                   ? `${event.capacity} people`
-                  : "No capacity limit specified"}
+                  : "No capacity limit"}
               </p>
             </div>
           </div>
 
           {event.event_type === "public" && (
             <div className="event-registration-info">
-              <h3>Registration</h3>
+              <h2>Registration</h2>
+
               <p>
                 {event.registration_enabled
                   ? "Registration is enabled for this event."
                   : "Registration is currently unavailable."}
               </p>
+
+              <p className="event-detail-secondary">
+                Registration mode: {formatLabel(event.registration_mode)}
+              </p>
             </div>
           )}
         </div>
-      </div>
+      </article>
     </section>
   );
 }

@@ -12,6 +12,8 @@ import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
 import DiscoverPage from "./pages/DiscoverPage";
 import EventDetailPage from "./pages/EventDetailPage";
+import CreateEventPage from "./pages/CreateEventPage";
+import PersonalEventFormPage from "./pages/PersonalEventFormPage";
 import LaunchPage from "./pages/LaunchPage";
 import WelcomePage from "./pages/WelcomePage";
 
@@ -89,13 +91,18 @@ function App() {
             />
 
             <Route
-              path="events/:eventId"
-              element={<EventDetailPage />}
+              path="events/create"
+              element={<CreateEventPage />}
             />
 
             <Route
-              path="events/create"
-              element={<PlaceholderPage title="Create Event" />}
+              path="events/create/personal"
+              element={<PersonalEventFormPage />}
+            />
+
+            <Route
+              path="events/:eventId"
+              element={<EventDetailPage />}
             />
 
             <Route
