@@ -14,6 +14,8 @@ import DiscoverPage from "./pages/DiscoverPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import CreateEventPage from "./pages/CreateEventPage";
 import PersonalEventFormPage from "./pages/PersonalEventFormPage";
+import SocialEventFormPage from "./pages/SocialEventFormPage";
+import PublicEventFormPage from "./pages/PublicEventFormPage";
 import LaunchPage from "./pages/LaunchPage";
 import WelcomePage from "./pages/WelcomePage";
 
@@ -90,6 +92,7 @@ function App() {
               element={<PlaceholderPage title="Saved Events" />}
             />
 
+            {/* Event creation */}
             <Route
               path="events/create"
               element={<CreateEventPage />}
@@ -100,6 +103,17 @@ function App() {
               element={<PersonalEventFormPage />}
             />
 
+            <Route
+              path="events/create/social"
+              element={<SocialEventFormPage />}
+            />
+
+            <Route
+              path="events/create/public"
+              element={<PublicEventFormPage />}
+            />
+
+            {/* Event details */}
             <Route
               path="events/:eventId"
               element={<EventDetailPage />}

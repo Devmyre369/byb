@@ -113,8 +113,9 @@ def upload_event_image(
     caption="",
 ):
     """
-    Upload an event image to Cloudinary and create its EventMedia record.
+    Upload an event gallery image to Cloudinary.
 
+    Creates an EventMedia record.
     New uploads remain pending moderation until approved.
     """
 
@@ -191,6 +192,61 @@ def upload_event_image(
                 except Exception:
                     logger.exception(
                         "Failed to clean up Cloudinary image %s",
+                        uploaded_public_id,
+                    )
+
+        raise
+
+
+def upload_event_cover_image(*, image):
+    """
+    Upload an event cover image to Cloudinary.
+
+    Cover images are stored separately from event gallery images.
+    Returns the secure URL without creating an EventMedia record.
+    """
+
+    validate_event_image(image)
+
+    public_id = f"cover_{uuid.uuid4().hex}"
+
+    upload_result = None
+
+    try:
+        upload_result = cloudinary.uploader.upload(
+            image,
+            resource_type="image",
+            folder="byb/event-covers",
+            public_id=public_id,
+            overwrite=False,
+            unique_filename=False,
+            use_filename=False,
+            allowed_formats=["jpg", "jpeg", "png", "webp"],
+        )
+
+        secure_url = upload_result.get("secure_url")
+
+        if not secure_url:
+            raise RuntimeError(
+                "Cloudinary returned an incomplete upload response."
+            )
+
+        return secure_url
+
+    except Exception:
+        # Clean up the uploaded file if the operation fails.
+        if upload_result:
+            uploaded_public_id = upload_result.get("public_id")
+
+            if uploaded_public_id:
+                try:
+                    cloudinary.uploader.destroy(
+                        uploaded_public_id,
+                        resource_type="image",
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to clean up Cloudinary cover image %s",
                         uploaded_public_id,
                     )
 

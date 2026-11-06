@@ -72,12 +72,22 @@ function CreateEventPage() {
     useState<EventType | null>(null);
 
   function handleContinue() {
-    if (!selectedType) return;
+  if (!selectedType) return;
 
-    if (selectedType === "personal") {
+  switch (selectedType) {
+    case "personal":
       navigate("/events/create/personal");
-    }
+      break;
+
+    case "social":
+      navigate("/events/create/social");
+      break;
+
+    case "public":
+      navigate("/events/create/public");
+      break;
   }
+}
 
   return (
     <main className="create-event-page">

@@ -62,7 +62,25 @@ export async function getEvent(
   return response.data;
 }
 
+// Upload an event cover image to Cloudinary.
+export type EventCoverUploadResponse = {
+  cover_image: string;
+};
 
+export async function uploadEventCoverImage(
+  image: File
+): Promise<EventCoverUploadResponse> {
+  const formData = new FormData();
+
+  formData.append("image", image);
+
+  const response = await api.post<EventCoverUploadResponse>(
+    "/events/cover-image/",
+    formData
+  );
+
+  return response.data;
+}
 
 export type CreateEventPayload = {
   title: string;
@@ -84,6 +102,7 @@ export type CreateEventPayload = {
   registration_closes_at: string | null;
 };
 
+// Create an event.
 export async function createEvent(
   payload: CreateEventPayload
 ): Promise<EventItem> {

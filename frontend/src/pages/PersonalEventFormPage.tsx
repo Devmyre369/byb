@@ -5,6 +5,7 @@ import {
   createEvent,
   type CreateEventPayload,
 } from "../api/events";
+import EventCoverUploader from "../components/EventCoverUploader";
 import "./PersonalEventFormPage.css";
 
 type Visibility = "private" | "selected" | "public";
@@ -87,6 +88,7 @@ function PersonalEventFormPage() {
 
   const [form, setForm] = useState<PersonalEventForm>(initialForm);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [error, setError] = useState("");
 
   function updateField<K extends keyof PersonalEventForm>(
@@ -132,23 +134,16 @@ function PersonalEventFormPage() {
       }
     }
 
-    if (form.cover_image.trim()) {
-      try {
-        const image = new URL(form.cover_image.trim());
-
-        if (!["http:", "https:"].includes(image.protocol)) {
-          return "The cover image must use an HTTP or HTTPS URL.";
-        }
-      } catch {
-        return "Please enter a valid cover image URL.";
-      }
-    }
-
     return null;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (uploadingCover) {
+      setError("Please wait for the cover image to finish uploading.");
+      return;
+    }
 
     const validationError = validateForm();
 
@@ -383,32 +378,13 @@ function PersonalEventFormPage() {
           </div>
 
           <div className="personal-event-fields">
-            <label className="personal-event-field full-width">
-              <span>Cover image URL</span>
-              <input
-                type="url"
+            <div className="personal-event-field full-width">
+              <EventCoverUploader
                 value={form.cover_image}
-                onChange={(event) =>
-                  updateField("cover_image", event.target.value)
-                }
-                placeholder="https://example.com/your-memory.jpg"
+                onChange={(url) => updateField("cover_image", url)}
+                onUploadingChange={setUploadingCover}
               />
-              <small>
-                You can leave this empty and add an image later.
-              </small>
-            </label>
-
-            {form.cover_image.trim() && (
-              <div className="personal-event-image-preview">
-                <img
-                  src={form.cover_image}
-                  alt="Event cover preview"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
-                />
-              </div>
-            )}
+            </div>
           </div>
         </section>
 
@@ -499,10 +475,14 @@ function PersonalEventFormPage() {
           <button
             type="submit"
             className="personal-event-submit"
-            disabled={submitting}
+            disabled={submitting || uploadingCover}
           >
-            {submitting ? "Creating..." : "Create Personal Event"}
-            {!submitting && <span>→</span>}
+            {uploadingCover
+              ? "Uploading cover..."
+              : submitting
+                ? "Creating..."
+                : "Create Personal Event"}
+            {!submitting && !uploadingCover && <span>→</span>}
           </button>
         </div>
       </form>
