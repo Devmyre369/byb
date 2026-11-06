@@ -12,6 +12,8 @@ import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
 import DiscoverPage from "./pages/DiscoverPage";
 import EventDetailPage from "./pages/EventDetailPage";
+import LaunchPage from "./pages/LaunchPage";
+import WelcomePage from "./pages/WelcomePage";
 
 import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,7 +23,9 @@ import "./App.css";
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <section className="content">
-      <span className="event-category">BEYOND YOUR BUBBLE</span>
+      <span className="event-category">
+        BEYOND YOUR BUBBLE
+      </span>
 
       <h1>{title}</h1>
 
@@ -36,15 +40,16 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public authentication pages */}
+        {/* Startup and welcome experience */}
+        <Route path="/" element={<LaunchPage />} />
+        <Route path="/welcome" element={<WelcomePage />} />
+
+        {/* Authentication pages */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Application layout */}
+        {/* Main application layout */}
         <Route element={<AppLayout />}>
-          {/* Discover page */}
-          <Route index element={<DiscoverPage />} />
-
           {/* Public destinations */}
           <Route
             path="events"
@@ -58,6 +63,11 @@ function App() {
 
           {/* Protected destinations */}
           <Route element={<ProtectedRoute />}>
+            <Route
+              path="discover"
+              element={<DiscoverPage />}
+            />
+
             <Route
               path="profile"
               element={<ProfilePage />}
@@ -78,7 +88,6 @@ function App() {
               element={<PlaceholderPage title="Saved Events" />}
             />
 
-            {/* Event details */}
             <Route
               path="events/:eventId"
               element={<EventDetailPage />}
@@ -97,7 +106,10 @@ function App() {
         </Route>
 
         {/* Unknown routes */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );

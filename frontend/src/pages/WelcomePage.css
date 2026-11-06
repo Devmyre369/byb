@@ -1,0 +1,396 @@
+
+.welcome-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background: #111113;
+  color: #f5f2f2;
+  padding: 0 7%;
+}
+
+.welcome-nav {
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 23px;
+  font-weight: 850;
+  letter-spacing: 2px;
+}
+
+.welcome-brand img {
+  width: 43px;
+  height: 43px;
+  object-fit: contain;
+}
+
+.welcome-nav-login {
+  color: #ddd6d8;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.welcome-nav-login:hover {
+  color: #ed3153;
+}
+
+.welcome-hero {
+  flex: 1;
+  width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: 45px;
+  padding: 45px 0;
+}
+
+.welcome-visual {
+  min-height: 520px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-glow {
+  position: absolute;
+  width: 430px;
+  height: 430px;
+  border-radius: 50%;
+  background: rgba(195, 27, 56, 0.16);
+  filter: blur(90px);
+}
+
+.welcome-hero-logo {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 480px);
+  height: 480px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 40px rgba(200, 30, 60, 0.2));
+  animation: welcomeLogoFloat 5s ease-in-out infinite;
+}
+
+.welcome-orbit {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border: 1px solid rgba(213, 40, 69, 0.13);
+  border-radius: 50%;
+}
+
+.orbit-one {
+  width: 480px;
+  height: 480px;
+}
+
+.orbit-two {
+  width: 560px;
+  height: 560px;
+  border-color: rgba(255, 255, 255, 0.045);
+}
+
+.welcome-copy {
+  max-width: 620px;
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-eyebrow {
+  color: #ed3153;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.welcome-copy h1 {
+  margin: 23px 0;
+  font-size: clamp(42px, 5.3vw, 72px);
+  line-height: 1.08;
+  letter-spacing: -3px;
+  font-weight: 850;
+}
+
+.welcome-copy h1 span {
+  color: #e52d4e;
+}
+
+.welcome-copy > p {
+  max-width: 510px;
+  color: #aaa3a7;
+  font-size: 16px;
+  line-height: 1.9;
+  margin-bottom: 35px;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 17px;
+}
+
+.welcome-primary-button {
+  min-width: 190px;
+  padding: 16px 23px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  border-radius: 8px;
+  background: #d92345;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.welcome-primary-button:hover {
+  background: #f03457;
+  transform: translateY(-2px);
+}
+
+.welcome-primary-button span {
+  font-size: 20px;
+}
+
+.welcome-secondary-button {
+  color: #c5bec1;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.welcome-secondary-button:hover {
+  color: #fff;
+}
+
+.welcome-values {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 48px;
+  color: #777176;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 2px;
+}
+
+.welcome-values i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #df2c4c;
+}
+
+.welcome-footer {
+  min-height: 65px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: #777176;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+@keyframes welcomeLogoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@media (max-width: 1050px) {
+  .welcome-hero {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .welcome-visual {
+    min-height: 430px;
+  }
+
+  .welcome-hero-logo {
+    width: 390px;
+    height: 390px;
+  }
+
+  .orbit-one {
+    width: 410px;
+    height: 410px;
+  }
+
+  .orbit-two {
+    width: 470px;
+    height: 470px;
+  }
+
+  .welcome-glow {
+    width: 350px;
+    height: 350px;
+  }
+}
+
+@media (max-width: 850px) {
+  .welcome-hero {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 30px 0 55px;
+  }
+
+  .welcome-visual {
+    min-height: 380px;
+  }
+
+  .welcome-hero-logo {
+    width: 340px;
+    height: 340px;
+  }
+
+  .welcome-glow {
+    width: 300px;
+    height: 300px;
+  }
+
+  .orbit-one {
+    width: 360px;
+    height: 360px;
+  }
+
+  .orbit-two {
+    width: 420px;
+    height: 420px;
+  }
+
+  .welcome-copy {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .welcome-copy > p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .welcome-actions {
+    align-items: center;
+  }
+
+  .welcome-values {
+    justify-content: center;
+    margin-top: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-page {
+    padding: 0 22px;
+  }
+
+  .welcome-nav {
+    height: 70px;
+  }
+
+  .welcome-brand {
+    font-size: 19px;
+  }
+
+  .welcome-brand img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .welcome-visual {
+    min-height: 300px;
+  }
+
+  .welcome-hero-logo {
+    width: 280px;
+    height: 280px;
+    max-width: 100%;
+  }
+
+  .welcome-glow {
+    width: 230px;
+    height: 230px;
+  }
+
+  .orbit-one {
+    width: 270px;
+    height: 270px;
+  }
+
+  .orbit-two {
+    width: 320px;
+    height: 320px;
+  }
+
+  .welcome-copy h1 {
+    font-size: 43px;
+    letter-spacing: -2px;
+  }
+
+  .welcome-copy > p {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .welcome-eyebrow {
+    font-size: 8px;
+    letter-spacing: 2px;
+  }
+
+  .welcome-footer {
+    min-height: 65px;
+    gap: 12px;
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-hero-logo {
+    animation: none;
+  }
+}
+
+.welcome-logo-fallback {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #ed3153;
+}
+
+.welcome-logo-fallback span {
+  font-size: 100px;
+  font-weight: 900;
+  letter-spacing: -6px;
+}
+
+.welcome-logo-fallback small {
+  color: #e7dfe0;
+  font-size: 11px;
+  letter-spacing: 4px;
+}
