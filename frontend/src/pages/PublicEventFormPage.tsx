@@ -93,6 +93,7 @@ function PublicEventFormPage() {
 
   const [form, setForm] = useState<PublicEventForm>(initialForm);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [error, setError] = useState("");
 
   function updateField<K extends keyof PublicEventForm>(
@@ -187,6 +188,11 @@ function PublicEventFormPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (uploadingCover) {
+      setError("Please wait for the cover image to finish uploading.");
+      return;
+    }
 
     const validationError = validateForm();
 
@@ -506,6 +512,7 @@ function PublicEventFormPage() {
               <EventCoverUploader
                 value={form.cover_image}
                 onChange={(url) => updateField("cover_image", url)}
+                onUploadingChange={setUploadingCover}
               />
             </div>
           </div>
@@ -542,10 +549,14 @@ function PublicEventFormPage() {
           <button
             type="submit"
             className="personal-event-submit"
-            disabled={submitting}
+            disabled={submitting || uploadingCover}
           >
-            {submitting ? "Publishing..." : "Publish Public Event"}
-            {!submitting && <span>→</span>}
+            {uploadingCover
+              ? "Uploading cover..."
+              : submitting
+                ? "Publishing..."
+                : "Publish Public Event"}
+            {!submitting && !uploadingCover && <span>→</span>}
           </button>
         </div>
       </form>
