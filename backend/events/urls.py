@@ -1,11 +1,12 @@
 
-
 from django.urls import path
 
 from events.media_moderation_views import EventMediaModerationView
+
 from events.media_views import (
     EventCoverImageUploadView,
     EventMediaUploadView,
+    MomentsFeedView,
 )
 
 from events.views import (
@@ -29,6 +30,14 @@ urlpatterns = [
         EventListCreateView.as_view(),
         name="event-list-create",
     ),
+
+    # Home - Vibes & Moments feed
+    path(
+        "moments/",
+        MomentsFeedView.as_view(),
+        name="moments-feed",
+    ),
+
     path(
         "<uuid:event_id>/",
         EventDetailView.as_view(),

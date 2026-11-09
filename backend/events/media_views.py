@@ -1,6 +1,4 @@
 
-
-
 import logging
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -12,14 +10,21 @@ from rest_framework.exceptions import (
     PermissionDenied as DRFPermissionDenied,
     ValidationError as DRFValidationError,
 )
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from events.models import Event, EventMedia
-from events.media_serializers import EventMediaSerializer
-from events.services.access import can_view_event
+from events.media_serializers import (
+    EventMediaSerializer,
+    MomentFeedSerializer,
+)
+from events.services.access import (
+    can_view_event,
+    get_accessible_events_queryset,
+)
 from events.services.media_service import (
     upload_event_cover_image,
     upload_event_image,
@@ -27,6 +32,55 @@ from events.services.media_service import (
 
 
 logger = logging.getLogger(__name__)
+
+
+class MomentsFeedPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 50
+
+
+class MomentsFeedView(APIView):
+    """
+    Return approved event images from events accessible to the user.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        accessible_events = get_accessible_events_queryset(
+            request.user
+        ).values("pk")
+
+        moments = (
+            EventMedia.objects.filter(
+                event_id__in=accessible_events,
+                event__is_deleted=False,
+                media_type=EventMedia.MediaType.IMAGE,
+                moderation_status=EventMedia.ModerationStatus.APPROVED,
+            )
+            .select_related(
+                "event",
+                "uploaded_by",
+            )
+            .order_by("-created_at", "-pk")
+        )
+
+        paginator = MomentsFeedPagination()
+        page = paginator.paginate_queryset(
+            moments,
+            request,
+            view=self,
+        )
+
+        serializer = MomentFeedSerializer(
+            page,
+            many=True,
+        )
+
+        return paginator.get_paginated_response(
+            serializer.data
+        )
 
 
 class EventCoverImageUploadView(APIView):
