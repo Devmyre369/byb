@@ -1,4 +1,4 @@
-
+﻿
 import { useState } from "react";
 import {
   NavLink,
@@ -10,10 +10,10 @@ import { useAuth } from "../context/AuthContext";
 import "./AppLayout.css";
 
 const navigation = [
-  { label: "Discover", path: "/", icon: "⌕" },
-  { label: "Events", path: "/events", icon: "▦" },
-  { label: "Media", path: "/media", icon: "▣" },
-  { label: "Saved", path: "/saved", icon: "♡" },
+  { label: "Discover", path: "/discover", icon: "âŒ•" },
+  { label: "Events", path: "/events", icon: "â–¦" },
+  { label: "Media", path: "/media", icon: "â–£" },
+  { label: "Saved", path: "/saved", icon: "â™¡" },
 ];
 
 function AppLayout() {
@@ -64,7 +64,7 @@ function AppLayout() {
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMobileMenuOpen}
         >
-          {isMobileMenuOpen ? "×" : "☰"}
+          {isMobileMenuOpen ? "Ã—" : "â˜°"}
         </button>
       </header>
 
@@ -95,7 +95,7 @@ function AppLayout() {
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isCollapsed ? "☰" : "×"}
+            {isCollapsed ? "â˜°" : "Ã—"}
           </button>
 
           <button
@@ -104,7 +104,7 @@ function AppLayout() {
             onClick={closeMobileMenu}
             aria-label="Close navigation menu"
           >
-            ×
+            Ã—
           </button>
         </div>
 
@@ -146,7 +146,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">＋</span>
+              <span className="app-nav-icon">ï¼‹</span>
               <span className="sidebar-link-text">Create Event</span>
             </NavLink>
 
@@ -158,7 +158,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">◎</span>
+              <span className="app-nav-icon">â—Ž</span>
               <span className="sidebar-link-text">My Profile</span>
             </NavLink>
 
@@ -170,7 +170,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">◇</span>
+              <span className="app-nav-icon">â—‡</span>
               <span className="sidebar-link-text">
                 Organizer Dashboard
               </span>
@@ -186,7 +186,7 @@ function AppLayout() {
             onClick={handleLogout}
             title={isCollapsed ? "Logout" : undefined}
           >
-            <span className="app-nav-icon">↪</span>
+            <span className="app-nav-icon">â†ª</span>
             <span className="sidebar-link-text">Logout</span>
           </button>
         </div>
@@ -215,7 +215,7 @@ function AppLayout() {
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">⌕</span>
+          <span className="mobile-app-nav-icon">âŒ•</span>
           <span>Discover</span>
         </NavLink>
 
@@ -226,7 +226,7 @@ function AppLayout() {
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">▦</span>
+          <span className="mobile-app-nav-icon">â–¦</span>
           <span>Events</span>
         </NavLink>
 
@@ -238,7 +238,7 @@ function AppLayout() {
           }
           aria-label="Create Event"
         >
-          <span>＋</span>
+          <span>ï¼‹</span>
         </NavLink>
 
         <NavLink
@@ -248,7 +248,7 @@ function AppLayout() {
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">▣</span>
+          <span className="mobile-app-nav-icon">â–£</span>
           <span>Media</span>
         </NavLink>
 
@@ -259,7 +259,7 @@ function AppLayout() {
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">◎</span>
+          <span className="mobile-app-nav-icon">â—Ž</span>
           <span>Profile</span>
         </NavLink>
       </nav>
@@ -268,3 +268,5 @@ function AppLayout() {
 }
 
 export default AppLayout;
+
+
