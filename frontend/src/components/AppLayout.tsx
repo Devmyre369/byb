@@ -10,10 +10,11 @@ import { useAuth } from "../context/AuthContext";
 import "./AppLayout.css";
 
 const navigation = [
-  { label: "Discover", path: "/discover", icon: "âŒ•" },
-  { label: "Events", path: "/events", icon: "â–¦" },
-  { label: "Media", path: "/media", icon: "â–£" },
-  { label: "Saved", path: "/saved", icon: "â™¡" },
+  { label: "Discover", path: "/discover", icon: "⌕" },
+  { label: "Hubs", path: "/hubs", icon: "◈" },
+  { label: "Events", path: "/events", icon: "▦" },
+  { label: "Media", path: "/media", icon: "▣" },
+  { label: "Saved", path: "/saved", icon: "♡" },
 ];
 
 function AppLayout() {
@@ -64,7 +65,7 @@ function AppLayout() {
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMobileMenuOpen}
         >
-          {isMobileMenuOpen ? "Ã—" : "â˜°"}
+          {isMobileMenuOpen ? "×" : "☰"}
         </button>
       </header>
 
@@ -95,7 +96,7 @@ function AppLayout() {
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isCollapsed ? "â˜°" : "Ã—"}
+            {isCollapsed ? "☰" : "×"}
           </button>
 
           <button
@@ -104,7 +105,7 @@ function AppLayout() {
             onClick={closeMobileMenu}
             aria-label="Close navigation menu"
           >
-            Ã—
+            ×
           </button>
         </div>
 
@@ -146,7 +147,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">ï¼‹</span>
+              <span className="app-nav-icon">＋</span>
               <span className="sidebar-link-text">Create Event</span>
             </NavLink>
 
@@ -158,7 +159,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">â—Ž</span>
+              <span className="app-nav-icon">◎</span>
               <span className="sidebar-link-text">My Profile</span>
             </NavLink>
 
@@ -170,7 +171,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">â—‡</span>
+              <span className="app-nav-icon">◇</span>
               <span className="sidebar-link-text">
                 Organizer Dashboard
               </span>
@@ -186,7 +187,7 @@ function AppLayout() {
             onClick={handleLogout}
             title={isCollapsed ? "Logout" : undefined}
           >
-            <span className="app-nav-icon">â†ª</span>
+            <span className="app-nav-icon">↪</span>
             <span className="sidebar-link-text">Logout</span>
           </button>
         </div>
@@ -208,26 +209,25 @@ function AppLayout() {
       {/* Mobile Bottom Navigation */}
       <nav className="mobile-app-navbar" aria-label="Mobile navigation">
         <NavLink
-          to="/"
-          end
+          to="/discover"
           onClick={closeMobileMenu}
           className={({ isActive }) =>
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">âŒ•</span>
+          <span className="mobile-app-nav-icon">⌕</span>
           <span>Discover</span>
         </NavLink>
 
         <NavLink
-          to="/events"
+          to="/hubs"
           onClick={closeMobileMenu}
           className={({ isActive }) =>
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">â–¦</span>
-          <span>Events</span>
+          <span className="mobile-app-nav-icon">◈</span>
+          <span>Hubs</span>
         </NavLink>
 
         <NavLink
@@ -238,7 +238,18 @@ function AppLayout() {
           }
           aria-label="Create Event"
         >
-          <span>ï¼‹</span>
+          <span>＋</span>
+        </NavLink>
+
+        <NavLink
+          to="/events"
+          onClick={closeMobileMenu}
+          className={({ isActive }) =>
+            `mobile-app-nav-item ${isActive ? "active" : ""}`
+          }
+        >
+          <span className="mobile-app-nav-icon">▦</span>
+          <span>Events</span>
         </NavLink>
 
         <NavLink
@@ -248,19 +259,8 @@ function AppLayout() {
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">â–£</span>
+          <span className="mobile-app-nav-icon">▣</span>
           <span>Media</span>
-        </NavLink>
-
-        <NavLink
-          to="/profile"
-          onClick={closeMobileMenu}
-          className={({ isActive }) =>
-            `mobile-app-nav-item ${isActive ? "active" : ""}`
-          }
-        >
-          <span className="mobile-app-nav-icon">â—Ž</span>
-          <span>Profile</span>
         </NavLink>
       </nav>
     </div>
@@ -268,5 +268,3 @@ function AppLayout() {
 }
 
 export default AppLayout;
-
-
