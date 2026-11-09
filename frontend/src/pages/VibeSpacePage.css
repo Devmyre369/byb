@@ -1,0 +1,530 @@
+
+/* =========================================
+   VIBESPACE PAGE
+========================================= */
+
+.vibespace-page {
+  width: 100%;
+  padding-bottom: 50px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.vibespace-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+  padding: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(227, 66, 80, 0.15),
+      transparent 40%
+    ),
+    var(--color-surface);
+}
+
+.vibespace-header h1 {
+  margin: 14px 0 9px;
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 850;
+  letter-spacing: -1.9px;
+}
+
+.vibespace-header p {
+  max-width: 570px;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+/* =========================================
+   NAVIGATION TABS
+========================================= */
+
+.vibespace-tabs {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 35px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.vibespace-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 39px;
+  padding: 10px 19px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.vibespace-tabs button:hover {
+  background: rgba(227, 66, 80, 0.07);
+  color: var(--color-text);
+}
+
+.vibespace-tabs button.active {
+  border-color: rgba(227, 66, 80, 0.3);
+  background: rgba(227, 66, 80, 0.12);
+  color: #f07883;
+}
+
+.vibespace-tabs button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   PAGE SECTIONS
+========================================= */
+
+.vibespace-section {
+  width: 100%;
+  min-width: 0;
+  animation: vibespace-fade-in 0.25s ease;
+}
+
+@keyframes vibespace-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   CREATE VIBE FORM
+========================================= */
+
+.vibespace-create-form {
+  width: 100%;
+  max-width: 760px;
+  padding: 27px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.vibespace-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 23px;
+}
+
+.vibespace-form-group > label,
+.vibespace-caption-heading label {
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.vibespace-form-group select,
+.vibespace-form-group textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  outline: none;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 13px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vibespace-form-group select {
+  min-height: 47px;
+  padding: 0 13px;
+  cursor: pointer;
+}
+
+.vibespace-form-group select option {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.vibespace-form-group textarea {
+  min-height: 125px;
+  padding: 13px 14px;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.vibespace-form-group textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.vibespace-form-group select:focus,
+.vibespace-form-group textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(227, 66, 80, 0.1);
+}
+
+.vibespace-caption-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vibespace-caption-heading span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+/* =========================================
+   IMAGE UPLOAD
+========================================= */
+
+.vibespace-upload-area {
+  display: flex;
+  justify-content: center;
+  min-height: 225px;
+  overflow: hidden;
+  border: 1px dashed rgba(227, 66, 80, 0.42);
+  border-radius: 12px;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(227, 66, 80, 0.07),
+      transparent 65%
+    ),
+    var(--color-background);
+}
+
+.vibespace-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 225px;
+  padding: 25px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.vibespace-upload-placeholder:hover {
+  background: rgba(227, 66, 80, 0.06);
+}
+
+.vibespace-upload-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(227, 66, 80, 0.3);
+  border-radius: 50%;
+  background: rgba(227, 66, 80, 0.1);
+  color: #f07883;
+  font-size: 29px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.vibespace-upload-placeholder strong {
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.vibespace-upload-placeholder > span:last-child {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.vibespace-image-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 17px;
+}
+
+.vibespace-image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 390px;
+  border-radius: 9px;
+  object-fit: contain;
+}
+
+.vibespace-remove-image {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid rgba(227, 66, 80, 0.3);
+  border-radius: 8px;
+  background: rgba(227, 66, 80, 0.08);
+  color: #f07883;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.vibespace-remove-image:hover {
+  background: rgba(227, 66, 80, 0.16);
+}
+
+/* =========================================
+   UPLOAD FEEDBACK
+========================================= */
+
+.vibespace-message {
+  margin-bottom: 17px;
+  padding: 13px 15px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.vibespace-error {
+  border: 1px solid rgba(239, 93, 93, 0.25);
+  background: rgba(239, 93, 93, 0.08);
+  color: #f28b8b;
+}
+
+.vibespace-success {
+  border: 1px solid rgba(78, 190, 133, 0.25);
+  background: rgba(78, 190, 133, 0.08);
+  color: #72d5a2;
+}
+
+.vibespace-upload-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.vibespace-upload-footer p {
+  max-width: 390px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.vibespace-upload-footer button {
+  flex-shrink: 0;
+}
+
+.vibespace-upload-footer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   MY VIBES - MODERATION STATUS
+========================================= */
+
+.my-vibe-card {
+  position: relative;
+}
+
+.my-vibe-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.my-vibe-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 25px;
+  padding: 5px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.status-pending {
+  border-color: rgba(231, 177, 82, 0.3);
+  background: rgba(231, 177, 82, 0.09);
+  color: #e7bd70;
+}
+
+.status-approved {
+  border-color: rgba(78, 190, 133, 0.3);
+  background: rgba(78, 190, 133, 0.09);
+  color: #72d5a2;
+}
+
+.status-rejected {
+  border-color: rgba(239, 93, 93, 0.3);
+  background: rgba(239, 93, 93, 0.09);
+  color: #f28b8b;
+}
+
+.status-removed {
+  border-color: rgba(145, 145, 155, 0.3);
+  background: rgba(145, 145, 155, 0.09);
+  color: #aaaab5;
+}
+
+.my-vibe-date {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+.vibespace-page button:focus-visible,
+.vibespace-page a:focus-visible,
+.vibespace-page select:focus-visible,
+.vibespace-page textarea:focus-visible,
+.vibespace-page input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+  .vibespace-header {
+    padding: 27px;
+  }
+
+  .vibespace-create-form {
+    max-width: 100%;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+  .vibespace-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 19px;
+    margin-bottom: 22px;
+    padding: 23px 19px;
+  }
+
+  .vibespace-header h1 {
+    font-size: 32px;
+  }
+
+  .vibespace-header p {
+    font-size: 12px;
+  }
+
+  .vibespace-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 3px;
+    margin-bottom: 28px;
+    padding: 4px;
+  }
+
+  .vibespace-tabs button {
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 5px;
+    font-size: 10px;
+  }
+
+  .vibespace-create-form {
+    padding: 18px 15px;
+  }
+
+  .vibespace-form-group {
+    margin-bottom: 20px;
+  }
+
+  .vibespace-upload-area,
+  .vibespace-upload-placeholder {
+    min-height: 190px;
+  }
+
+  .vibespace-image-preview {
+    padding: 12px;
+  }
+
+  .vibespace-image-preview img {
+    max-height: 290px;
+  }
+
+  .vibespace-upload-footer {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .vibespace-upload-footer p {
+    max-width: none;
+  }
+
+  .vibespace-upload-footer button {
+    width: 100%;
+  }
+
+  .my-vibe-status-row {
+    padding: 12px 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .vibespace-tabs button {
+    font-size: 9px;
+  }
+
+  .vibespace-create-form {
+    padding: 15px 12px;
+  }
+}

@@ -155,3 +155,22 @@ export async function getEventMoments(
 
   return response.data;
 }
+
+
+
+export async function getUploadableEvents(
+  page = 1,
+  pageSize = 100
+): Promise<EventListResponse> {
+  const response = await api.get<EventListResponse>(
+    "/events/uploadable/",
+    {
+      params: {
+        page,
+        page_size: pageSize,
+      },
+    }
+  );
+
+  return response.data;
+}
