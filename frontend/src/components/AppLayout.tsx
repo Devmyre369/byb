@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import "./AppLayout.css";
 
 const navigation = [
+  { label: "Home", path: "/home", icon: "⌂" },
   { label: "Discover", path: "/discover", icon: "⌕" },
   { label: "Hubs", path: "/hubs", icon: "◈" },
   { label: "Events", path: "/events", icon: "▦" },
@@ -55,6 +56,7 @@ function AppLayout() {
 
     if (query) {
       navigate(`/discover?q=${encodeURIComponent(query)}`);
+      closeMobileMenu();
     }
   };
 
@@ -94,7 +96,7 @@ function AppLayout() {
           </button>
         </div>
 
-        <Link to="/" className="topbar-brand">
+        <Link to="/home" className="topbar-brand">
           BYB<span>.</span>
         </Link>
 
@@ -135,7 +137,7 @@ function AppLayout() {
         </button>
 
         <Link
-          to="/"
+          to="/home"
           className="mobile-brand"
           onClick={closeMobileMenu}
         >
@@ -274,14 +276,15 @@ function AppLayout() {
       {/* Mobile Bottom Navigation */}
       <nav className="mobile-app-navbar" aria-label="Mobile navigation">
         <NavLink
-          to="/discover"
+          to="/home"
+          end
           onClick={closeMobileMenu}
           className={({ isActive }) =>
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">⌕</span>
-          <span>Discover</span>
+          <span className="mobile-app-nav-icon">⌂</span>
+          <span>Home</span>
         </NavLink>
 
         <NavLink

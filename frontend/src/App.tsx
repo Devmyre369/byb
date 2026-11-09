@@ -10,6 +10,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
+import HomePage from "./pages/HomePage";
 import DiscoverPage from "./pages/DiscoverPage";
 import HubDiscoverPage from "./pages/HubDiscoverPage";
 import EventDetailPage from "./pages/EventDetailPage";
@@ -73,6 +74,11 @@ function App() {
 
           {/* Protected destinations */}
           <Route element={<ProtectedRoute />}>
+            <Route
+              path="home"
+              element={<HomePage />}
+            />
+
             <Route
               path="discover"
               element={<DiscoverPage />}
