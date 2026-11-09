@@ -1,13 +1,9 @@
-from django.db import models
-
-# Create your models here.
 
 import uuid
 
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-from django.utils.text import slugify
 
 
 class Hub(models.Model):
@@ -17,6 +13,10 @@ class Hub(models.Model):
         CLUB = "club", "Club"
         ORGANISATION = "organisation", "Organisation"
         COMMUNITY = "community", "Community"
+
+    class MembershipPolicy(models.TextChoices):
+        AUTOMATIC = "automatic", "Automatic"
+        APPROVAL = "approval", "Approval Required"
 
     class VerificationStatus(models.TextChoices):
         UNVERIFIED = "unverified", "Unverified"
@@ -47,6 +47,14 @@ class Hub(models.Model):
     hub_type = models.CharField(
         max_length=20,
         choices=HubType.choices,
+    )
+
+    # Membership configuration
+
+    membership_policy = models.CharField(
+        max_length=20,
+        choices=MembershipPolicy.choices,
+        default=MembershipPolicy.APPROVAL,
     )
 
     # Visual identity (Cloudinary URLs)
