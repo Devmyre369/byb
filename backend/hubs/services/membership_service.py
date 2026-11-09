@@ -7,7 +7,6 @@ from hubs.models import Hub, HubMembership
 from hubs.services.permissions import (
     can_approve_members,
     can_invite_members,
-    can_manage_members,
     can_remove_members,
 )
 
@@ -45,12 +44,7 @@ def _get_locked_membership(hub, membership_id):
 
 @transaction.atomic
 def request_to_join_hub(*, user, hub):
-    """
-    Join a Hub or submit a membership request.
-
-    The Hub's membership policy determines whether
-    membership becomes active immediately or remains pending.
-    """
+    """Join a Hub or submit a membership request."""
 
     _require_authenticated(user)
     hub = _get_locked_hub(hub)
@@ -98,12 +92,7 @@ def request_to_join_hub(*, user, hub):
 
 
 @transaction.atomic
-def approve_membership_request(
-    *,
-    actor,
-    hub,
-    membership_id,
-):
+def approve_membership_request(*, actor, hub, membership_id):
     """Approve a pending membership request. Owner/Admin only."""
 
     _require_authenticated(actor)
@@ -122,10 +111,11 @@ def approve_membership_request(
     if membership.source != HubMembership.Source.REQUEST:
         raise ValidationError("Only join requests can be approved.")
 
+    now = timezone.now()
     membership.status = HubMembership.Status.ACTIVE
     membership.reviewed_by = actor
-    membership.reviewed_at = timezone.now()
-    membership.joined_at = timezone.now()
+    membership.reviewed_at = now
+    membership.joined_at = now
 
     membership.full_clean()
     membership.save()
@@ -134,12 +124,7 @@ def approve_membership_request(
 
 
 @transaction.atomic
-def reject_membership_request(
-    *,
-    actor,
-    hub,
-    membership_id,
-):
+def reject_membership_request(*, actor, hub, membership_id):
     """Reject a pending membership request. Owner/Admin only."""
 
     _require_authenticated(actor)
@@ -170,17 +155,8 @@ def reject_membership_request(
 
 
 @transaction.atomic
-def invite_hub_member(
-    *,
-    actor,
-    hub,
-    invited_user,
-):
-    """
-    Directly add a user as an active Member.
-
-    Owner/Admin only. Invitations cannot assign elevated roles.
-    """
+def invite_hub_member(*, actor, hub, invited_user):
+    """Directly add a user as an active Member. Owner/Admin only."""
 
     _require_authenticated(actor)
     hub = _get_locked_hub(hub)
@@ -238,28 +214,18 @@ def invite_hub_member(
 
 
 @transaction.atomic
-def remove_hub_member(
-    *,
-    actor,
-    hub,
-    membership_id,
-):
-    """Remove a Hub member. Owner/Admin permissions apply."""
+def remove_hub_member(*, actor, hub, membership_id):
+    """Remove a Hub member, respecting the target's role."""
 
     _require_authenticated(actor)
     hub = _get_locked_hub(hub)
 
-    _require_permission(
-        can_remove_members(actor, hub),
-        "You do not have permission to remove members.",
-    )
-
     membership = _get_locked_membership(hub, membership_id)
 
-    if membership.role == HubMembership.Role.OWNER:
-        raise ValidationError(
-            "The Hub owner cannot be removed. Transfer ownership first."
-        )
+    _require_permission(
+        can_remove_members(actor, hub, membership),
+        "You do not have permission to remove this member.",
+    )
 
     if membership.user_id == actor.pk:
         raise ValidationError(

@@ -23,4 +23,8 @@ urlpatterns = [
         "api/events/",
         include("events.urls"),
     ),
+    path(
+    "api/hubs/",
+    include("hubs.urls"),
+),
 ]
