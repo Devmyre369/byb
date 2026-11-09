@@ -7,11 +7,13 @@ from events.media_views import (
     EventCoverImageUploadView,
     EventMediaUploadView,
     MomentsFeedView,
+    MyMomentsView,
 )
 
 from events.views import (
     EventListCreateView,
     EventDetailView,
+    UploadableEventsView,
     EventOrganiserListCreateView,
     EventOrganiserDetailView,
     EventParticipantListCreateView,
@@ -38,10 +40,18 @@ urlpatterns = [
         name="moments-feed",
     ),
 
+    # VibeSpace - Current user's uploaded moments
     path(
-        "<uuid:event_id>/",
-        EventDetailView.as_view(),
-        name="event-detail",
+        "my-moments/",
+        MyMomentsView.as_view(),
+        name="my-moments",
+    ),
+
+    # VibeSpace - Events where the user can upload moments
+    path(
+        "uploadable/",
+        UploadableEventsView.as_view(),
+        name="uploadable-events",
     ),
 
     # Event cover image upload
@@ -49,6 +59,13 @@ urlpatterns = [
         "cover-image/",
         EventCoverImageUploadView.as_view(),
         name="event-cover-image-upload",
+    ),
+
+    # Event detail
+    path(
+        "<uuid:event_id>/",
+        EventDetailView.as_view(),
+        name="event-detail",
     ),
 
     # Organisers

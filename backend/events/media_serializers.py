@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 
 from events.models import EventMedia
@@ -53,6 +52,33 @@ class MomentFeedSerializer(serializers.ModelSerializer):
             "first_name": user.first_name,
             "profile_picture": user.profile_picture or "",
         }
+
+    def get_event(self, obj):
+        event = obj.event
+
+        return {
+            "id": str(event.pk),
+            "title": event.title,
+            "location_name": event.location_name,
+            "city": event.city,
+        }
+
+
+class MyMomentSerializer(serializers.ModelSerializer):
+    event = serializers.SerializerMethodField()
+
+    class Meta:
+        model = EventMedia
+        fields = [
+            "id",
+            "media_type",
+            "cloudinary_url",
+            "caption",
+            "moderation_status",
+            "created_at",
+            "event",
+        ]
+        read_only_fields = fields
 
     def get_event(self, obj):
         event = obj.event

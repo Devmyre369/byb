@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
 import HomePage from "./pages/HomePage";
+import VibeSpacePage from "./pages/VibeSpacePage";
 import DiscoverPage from "./pages/DiscoverPage";
 import HubDiscoverPage from "./pages/HubDiscoverPage";
 import EventDetailPage from "./pages/EventDetailPage";
@@ -77,6 +78,11 @@ function App() {
             <Route
               path="home"
               element={<HomePage />}
+            />
+
+            <Route
+              path="vibespace"
+              element={<VibeSpacePage />}
             />
 
             <Route

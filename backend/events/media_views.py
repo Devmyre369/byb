@@ -1,4 +1,3 @@
-
 import logging
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -20,6 +19,7 @@ from events.models import Event, EventMedia
 from events.media_serializers import (
     EventMediaSerializer,
     MomentFeedSerializer,
+    MyMomentSerializer,
 )
 from events.services.access import (
     can_view_event,
@@ -74,6 +74,42 @@ class MomentsFeedView(APIView):
         )
 
         serializer = MomentFeedSerializer(
+            page,
+            many=True,
+        )
+
+        return paginator.get_paginated_response(
+            serializer.data
+        )
+
+
+class MyMomentsView(APIView):
+    """
+    Return all images uploaded by the authenticated user,
+    including every moderation status.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        moments = (
+            EventMedia.objects.filter(
+                uploaded_by=request.user,
+                event__is_deleted=False,
+                media_type=EventMedia.MediaType.IMAGE,
+            )
+            .select_related("event")
+            .order_by("-created_at", "-pk")
+        )
+
+        paginator = MomentsFeedPagination()
+        page = paginator.paginate_queryset(
+            moments,
+            request,
+            view=self,
+        )
+
+        serializer = MyMomentSerializer(
             page,
             many=True,
         )

@@ -25,11 +25,34 @@ export type Moment = {
   event: MomentEvent;
 };
 
+export type MomentModerationStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "removed";
+
+export type MyMoment = {
+  id: string;
+  media_type: "image";
+  cloudinary_url: string;
+  caption: string;
+  moderation_status: MomentModerationStatus;
+  created_at: string;
+  event: MomentEvent;
+};
+
 export type MomentsFeedResponse = {
   count: number;
   next: string | null;
   previous: string | null;
   results: Moment[];
+};
+
+export type MyMomentsResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: MyMoment[];
 };
 
 export async function getMoments(
@@ -38,6 +61,23 @@ export async function getMoments(
 ): Promise<MomentsFeedResponse> {
   const response = await api.get<MomentsFeedResponse>(
     "/events/moments/",
+    {
+      params: {
+        page,
+        page_size: pageSize,
+      },
+    }
+  );
+
+  return response.data;
+}
+
+export async function getMyMoments(
+  page = 1,
+  pageSize = 20
+): Promise<MyMomentsResponse> {
+  const response = await api.get<MyMomentsResponse>(
+    "/events/my-moments/",
     {
       params: {
         page,

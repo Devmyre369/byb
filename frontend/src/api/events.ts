@@ -36,6 +36,17 @@ export type EventListResponse = {
   results: EventItem[];
 };
 
+export type EventMedia = {
+  id: string;
+  event_id: string;
+  uploaded_by_id: string;
+  media_type: "image";
+  cloudinary_url: string;
+  caption: string;
+  moderation_status: "pending" | "approved" | "rejected" | "removed";
+  created_at: string;
+};
+
 // Fetch paginated events.
 export async function getEvents(
   page = 1,
@@ -109,6 +120,37 @@ export async function createEvent(
   const response = await api.post<EventItem>(
     "/events/",
     payload
+  );
+
+  return response.data;
+}
+
+// Upload an image moment to an event.
+// Newly uploaded moments remain pending until approved.
+export async function uploadEventMoment(
+  eventId: string,
+  image: File,
+  caption = ""
+): Promise<EventMedia> {
+  const formData = new FormData();
+
+  formData.append("image", image);
+  formData.append("caption", caption);
+
+  const response = await api.post<EventMedia>(
+    `/events/${eventId}/media/`,
+    formData
+  );
+
+  return response.data;
+}
+
+// Retrieve approved image moments for a specific event.
+export async function getEventMoments(
+  eventId: string
+): Promise<EventMedia[]> {
+  const response = await api.get<EventMedia[]>(
+    `/events/${eventId}/media/`
   );
 
   return response.data;

@@ -709,3 +709,83 @@ class EventRegistrationDetailView(APIView):
         )
 
         return Response(serialize_registration(registration))
+
+
+
+
+# --------------------------------------------------
+# VibeSpace - Events accepting media uploads
+# --------------------------------------------------
+
+class UploadableEventsView(APIView):
+    """
+    Return events where the authenticated user is authorised
+    to upload event media.
+
+    Mirrors can_upload_event_media() permission rules.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        events = (
+            Event.objects.filter(
+                is_deleted=False,
+            )
+            .exclude(
+                status=Event.Status.ARCHIVED,
+            )
+            .filter(
+                Q(creator=user)
+                |
+                Q(
+                    organisers__user=user,
+                    organisers__role=EventOrganiser.Role.CO_ORGANISER,
+                    organisers__can_moderate_media=True,
+                )
+                |
+                Q(
+                    event_type=Event.EventType.PERSONAL,
+                    participants__user=user,
+                    participants__status__in=[
+                        EventParticipant.Status.INVITED,
+                        EventParticipant.Status.ACCEPTED,
+                    ],
+                    participants__can_upload_media=True,
+                )
+                |
+                Q(
+                    event_type=Event.EventType.SOCIAL,
+                    participants__user=user,
+                    participants__status=EventParticipant.Status.ACCEPTED,
+                )
+                |
+                Q(
+                    event_type=Event.EventType.PUBLIC,
+                    registrations__user=user,
+                    registrations__status=EventRegistration.Status.CONFIRMED,
+                )
+            )
+            .select_related("creator")
+            .distinct()
+            .order_by("-created_at")
+        )
+
+        paginator = EventPagination()
+        page = paginator.paginate_queryset(
+            events,
+            request,
+            view=self,
+        )
+
+        serializer = EventSerializer(
+            page,
+            many=True,
+            context={"request": request},
+        )
+
+        return paginator.get_paginated_response(
+            serializer.data
+        )

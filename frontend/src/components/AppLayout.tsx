@@ -1,5 +1,4 @@
-﻿
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   NavLink,
   Outlet,
@@ -12,9 +11,9 @@ import "./AppLayout.css";
 const navigation = [
   { label: "Home", path: "/home", icon: "⌂" },
   { label: "Discover", path: "/discover", icon: "⌕" },
+  { label: "VibeSpace", path: "/vibespace", icon: "✧" },
   { label: "Hubs", path: "/hubs", icon: "◈" },
   { label: "Events", path: "/events", icon: "▦" },
-  { label: "Media", path: "/media", icon: "▣" },
   { label: "Saved", path: "/saved", icon: "♡" },
 ];
 
@@ -288,14 +287,14 @@ function AppLayout() {
         </NavLink>
 
         <NavLink
-          to="/hubs"
+          to="/vibespace"
           onClick={closeMobileMenu}
           className={({ isActive }) =>
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">◈</span>
-          <span>Hubs</span>
+          <span className="mobile-app-nav-icon">✧</span>
+          <span>Vibes</span>
         </NavLink>
 
         <NavLink

@@ -66,6 +66,10 @@ class MomentsFeedAPITests(APITestCase):
             moderation_status=moderation_status,
         )
 
+    # ------------------------------------------
+    # HOME MOMENTS FEED TESTS
+    # ------------------------------------------
+
     def test_unauthenticated_user_cannot_access_feed(self):
         self.client.force_authenticate(user=None)
 
@@ -180,6 +184,151 @@ class MomentsFeedAPITests(APITestCase):
 
         response = self.client.get(
             self.url,
+            {"page_size": 2},
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+        self.assertEqual(response.data["count"], 3)
+        self.assertEqual(len(response.data["results"]), 2)
+        self.assertIsNotNone(response.data["next"])
+
+    # ------------------------------------------
+    # MY VIBES TESTS
+    # ------------------------------------------
+
+    def test_unauthenticated_user_cannot_access_my_moments(self):
+        self.client.force_authenticate(user=None)
+
+        response = self.client.get(
+            reverse("my-moments")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
+    def test_user_can_see_own_moments_in_all_moderation_states(self):
+        moderation_states = [
+            EventMedia.ModerationStatus.PENDING,
+            EventMedia.ModerationStatus.APPROVED,
+            EventMedia.ModerationStatus.REJECTED,
+            EventMedia.ModerationStatus.REMOVED,
+        ]
+
+        own_media = []
+
+        for index, moderation_state in enumerate(moderation_states):
+            media = self.create_media(
+                moderation_status=moderation_state,
+                public_id=f"test/my_moment_{index}",
+            )
+            own_media.append(media)
+
+        other_event = Event.objects.create(
+            creator=self.other_user,
+            title="Other User Event",
+            event_type=Event.EventType.PUBLIC,
+            starts_at=timezone.now() + timedelta(days=3),
+            visibility=Event.Visibility.PUBLIC,
+            city="Lucknow",
+        )
+
+        other_media = self.create_media(
+            event=other_event,
+            uploaded_by=self.other_user,
+            moderation_status=EventMedia.ModerationStatus.APPROVED,
+            public_id="test/other_user_moment",
+        )
+
+        response = self.client.get(
+            reverse("my-moments")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+        self.assertEqual(
+            response.data["count"],
+            len(own_media),
+        )
+
+        returned_ids = {
+            str(moment["id"])
+            for moment in response.data["results"]
+        }
+
+        expected_ids = {
+            str(media.id)
+            for media in own_media
+        }
+
+        self.assertSetEqual(returned_ids, expected_ids)
+
+        returned_statuses = {
+            moment["moderation_status"]
+            for moment in response.data["results"]
+        }
+
+        self.assertSetEqual(
+            returned_statuses,
+            set(moderation_states),
+        )
+
+        self.assertNotIn(
+            str(other_media.id),
+            returned_ids,
+        )
+
+        for moment in response.data["results"]:
+            self.assertEqual(
+                moment["event"]["title"],
+                self.event.title,
+            )
+
+    def test_my_moments_excludes_deleted_events(self):
+        deleted_event = Event.objects.create(
+            creator=self.creator,
+            title="Deleted Vibe Event",
+            event_type=Event.EventType.SOCIAL,
+            starts_at=timezone.now() + timedelta(days=2),
+            visibility=Event.Visibility.PUBLIC,
+            is_deleted=True,
+            deleted_at=timezone.now(),
+        )
+
+        self.create_media(
+            event=deleted_event,
+            public_id="test/deleted_my_moment",
+        )
+
+        response = self.client.get(
+            reverse("my-moments")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+        self.assertEqual(response.data["count"], 0)
+        self.assertEqual(response.data["results"], [])
+
+    def test_my_moments_supports_pagination(self):
+        for index in range(3):
+            self.create_media(
+                public_id=f"test/my_pagination_{index}",
+                caption=f"My moment {index}",
+            )
+
+        response = self.client.get(
+            reverse("my-moments"),
             {"page_size": 2},
         )
 
