@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
 import DiscoverPage from "./pages/DiscoverPage";
+import HubDiscoverPage from "./pages/HubDiscoverPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import CreateEventPage from "./pages/CreateEventPage";
 import PersonalEventFormPage from "./pages/PersonalEventFormPage";
@@ -63,6 +64,11 @@ function App() {
           <Route
             path="media"
             element={<PlaceholderPage title="Event Media" />}
+          />
+
+          <Route
+            path="hubs"
+            element={<HubDiscoverPage />}
           />
 
           {/* Protected destinations */}
