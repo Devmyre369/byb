@@ -21,8 +21,13 @@ function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  const profilePicture =
+    typeof user?.profile_picture === "string"
+      ? user.profile_picture
+      : "";
 
   const toggleSidebar = () => {
     setIsCollapsed((previous) => !previous);
@@ -41,6 +46,22 @@ function AppLayout() {
     closeMobileMenu();
     navigate("/login", { replace: true });
   };
+
+  const ProfileAvatar = ({ className = "" }: { className?: string }) => (
+    <span className={`profile-nav-avatar ${className}`}>
+      {profilePicture ? (
+        <img
+          src={profilePicture}
+          alt="Your profile"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
+        />
+      ) : (
+        <span aria-hidden="true">◎</span>
+      )}
+    </span>
+  );
 
   return (
     <div
@@ -81,14 +102,6 @@ function AppLayout() {
       {/* Sidebar */}
       <aside className="app-sidebar">
         <div className="sidebar-header">
-          <Link
-            to="/"
-            className="sidebar-brand"
-            onClick={closeMobileMenu}
-          >
-            BYB<span>.</span>
-          </Link>
-
           <button
             type="button"
             className="sidebar-toggle"
@@ -98,6 +111,14 @@ function AppLayout() {
           >
             {isCollapsed ? "☰" : "×"}
           </button>
+
+          <Link
+            to="/"
+            className="sidebar-brand"
+            onClick={closeMobileMenu}
+          >
+            BYB<span>.</span>
+          </Link>
 
           <button
             type="button"
@@ -118,7 +139,6 @@ function AppLayout() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                end={item.path === "/"}
                 title={isCollapsed ? item.label : undefined}
                 onClick={closeMobileMenu}
                 className={({ isActive }) =>
@@ -159,7 +179,7 @@ function AppLayout() {
                 `app-nav-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="app-nav-icon">◎</span>
+              <ProfileAvatar />
               <span className="sidebar-link-text">My Profile</span>
             </NavLink>
 
@@ -253,14 +273,14 @@ function AppLayout() {
         </NavLink>
 
         <NavLink
-          to="/media"
+          to="/profile"
           onClick={closeMobileMenu}
           className={({ isActive }) =>
             `mobile-app-nav-item ${isActive ? "active" : ""}`
           }
         >
-          <span className="mobile-app-nav-icon">▣</span>
-          <span>Media</span>
+          <ProfileAvatar className="mobile-profile-avatar" />
+          <span>Profile</span>
         </NavLink>
       </nav>
     </div>

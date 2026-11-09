@@ -106,6 +106,7 @@ class LoginSerializer(serializers.Serializer):
                 "id": str(user.id),
                 "email": user.email,
                 "username": user.username,
+                "profile_picture": user.profile_picture,
             }
         }
 

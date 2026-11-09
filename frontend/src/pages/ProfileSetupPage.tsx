@@ -124,7 +124,7 @@ function getErrorMessage(error: unknown): string {
 
 function ProfileSetupPage() {
   const navigate = useNavigate();
-  const { updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const [profile, setProfile] = useState<UserProfile>(EMPTY_PROFILE);
   const [loading, setLoading] = useState(true);
@@ -256,6 +256,13 @@ function ProfileSetupPage() {
         ...current,
         profile_picture: uploadedUrl,
       }));
+
+      if (user) {
+        updateUser({
+          ...user,
+          profile_picture: uploadedUrl,
+        });
+      }
 
       setPhotoPreview("");
       setSuccess("Profile photo uploaded successfully.");
