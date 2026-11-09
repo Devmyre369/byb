@@ -1270,3 +1270,242 @@
     min-width: 21px;
   }
 }
+
+/* =========================================
+   BYB — NEW RESPONSIVE TOP BAR
+========================================= */
+
+.app-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+  padding: 0 28px;
+  box-sizing: border-box;
+  background: #181818;
+  border-bottom: 1px solid #303033;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.topbar-left {
+  justify-content: flex-start;
+  width: 33.33%;
+}
+
+.topbar-right {
+  justify-content: flex-end;
+  width: 33.33%;
+}
+
+.topbar-brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #f5f5f5;
+  text-decoration: none;
+  font-size: 29px;
+  font-weight: 900;
+  letter-spacing: -1.8px;
+}
+
+.topbar-brand span {
+  color: #e34250;
+}
+
+.topbar-sidebar-toggle,
+.topbar-notifications {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 1px solid #303033;
+  border-radius: 10px;
+  background: #202022;
+  color: #f5f5f5;
+  font-size: 22px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.topbar-sidebar-toggle:hover,
+.topbar-notifications:hover {
+  background: #303033;
+  border-color: #e34250;
+}
+
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(260px, 24vw);
+  height: 42px;
+  padding: 0 13px;
+  box-sizing: border-box;
+  border: 1px solid #303033;
+  border-radius: 10px;
+  background: #202022;
+  transition: border-color 0.2s ease;
+}
+
+.topbar-search:focus-within {
+  border-color: #e34250;
+}
+
+.topbar-search-icon {
+  color: #999;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.topbar-search input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #f5f5f5;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.topbar-search input::placeholder {
+  color: #858585;
+}
+
+.topbar-search input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.notification-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e34250;
+}
+
+/* Sidebar starts below the top bar */
+.app-sidebar {
+  top: 72px;
+  height: calc(100vh - 72px);
+}
+
+.app-main {
+  padding-top: 72px;
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .app-topbar {
+    padding: 0 20px;
+  }
+
+  .topbar-search {
+    width: 210px;
+  }
+}
+
+/* Mobile top bar */
+@media (max-width: 768px) {
+  .app-topbar {
+    display: none;
+  }
+
+  .mobile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1300;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    background: #181818;
+    border-bottom: 1px solid #303033;
+  }
+
+  .mobile-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+  }
+
+  .mobile-menu-toggle {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #303033;
+    border-radius: 9px;
+    background: #202022;
+    color: #f5f5f5;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .mobile-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .mobile-notifications {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #303033;
+    border-radius: 9px;
+    background: #202022;
+    color: #f5f5f5;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .app-sidebar {
+    top: 60px;
+    height: calc(100dvh - 60px);
+  }
+
+  .app-main {
+    padding-top: 60px;
+  }
+}
+
+/* Very narrow mobile screens */
+@media (max-width: 380px) {
+  .mobile-topbar {
+    padding: 0 10px;
+  }
+
+  .mobile-brand {
+    font-size: 22px;
+  }
+}

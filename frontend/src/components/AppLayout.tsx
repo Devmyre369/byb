@@ -20,6 +20,7 @@ const navigation = [
 function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -47,6 +48,16 @@ function AppLayout() {
     navigate("/login", { replace: true });
   };
 
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const query = searchQuery.trim();
+
+    if (query) {
+      navigate(`/discover?q=${encodeURIComponent(query)}`);
+    }
+  };
+
   const ProfileAvatar = ({ className = "" }: { className?: string }) => (
     <span className={`profile-nav-avatar ${className}`}>
       {profilePicture ? (
@@ -69,16 +80,50 @@ function AppLayout() {
         isCollapsed ? "sidebar-collapsed" : ""
       } ${isMobileMenuOpen ? "mobile-sidebar-open" : ""}`}
     >
-      {/* Mobile Top Bar */}
-      <header className="mobile-topbar">
-        <Link
-          to="/"
-          className="mobile-brand"
-          onClick={closeMobileMenu}
-        >
+      {/* Desktop and Tablet Top Bar */}
+      <header className="app-topbar">
+        <div className="topbar-left">
+          <button
+            type="button"
+            className="topbar-sidebar-toggle"
+            onClick={toggleSidebar}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            ☰
+          </button>
+        </div>
+
+        <Link to="/" className="topbar-brand">
           BYB<span>.</span>
         </Link>
 
+        <div className="topbar-right">
+          <form className="topbar-search" onSubmit={handleSearch}>
+            <span className="topbar-search-icon" aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              placeholder="Search BYB..."
+              aria-label="Search BYB"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+          </form>
+
+          <button
+            type="button"
+            className="topbar-notifications"
+            aria-label="Notifications"
+            title="Notifications"
+          >
+            ♧
+            <span className="notification-indicator" />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Top Bar */}
+      <header className="mobile-topbar">
         <button
           type="button"
           className="mobile-menu-toggle"
@@ -88,6 +133,24 @@ function AppLayout() {
         >
           {isMobileMenuOpen ? "×" : "☰"}
         </button>
+
+        <Link
+          to="/"
+          className="mobile-brand"
+          onClick={closeMobileMenu}
+        >
+          BYB<span>.</span>
+        </Link>
+
+        <div className="mobile-topbar-actions">
+          <button
+            type="button"
+            className="mobile-notifications"
+            aria-label="Notifications"
+          >
+            ♧
+          </button>
+        </div>
       </header>
 
       {/* Mobile Backdrop */}
@@ -102,24 +165,6 @@ function AppLayout() {
       {/* Sidebar */}
       <aside className="app-sidebar">
         <div className="sidebar-header">
-          <button
-            type="button"
-            className="sidebar-toggle"
-            onClick={toggleSidebar}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? "☰" : "×"}
-          </button>
-
-          <Link
-            to="/"
-            className="sidebar-brand"
-            onClick={closeMobileMenu}
-          >
-            BYB<span>.</span>
-          </Link>
-
           <button
             type="button"
             className="mobile-drawer-close"
